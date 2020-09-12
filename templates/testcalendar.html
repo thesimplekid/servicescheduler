@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block headcontent %}
+<title>testCalendar</title>
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.3.2/main.min.css' rel='stylesheet' />
+{% endblock %}
+
+{% block content %}
+<div class='demo-topbar'></div>
+<div id='calendar'></div>
+{% endblock %}
+
+{% block endcontent %}
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.3.2/main.min.js'></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      initialDate: '2020-09-07',
+      weekends: false,
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+      },
+      eventClick: function(info) {
+        alert('Clicked: ' + info.event.title);
+      },
+      eventDidMount: function(info) {
+        //hooks for tooltips here - https://fullcalendar.io/docs/event-tooltip-demo
+        //requires tooltip and popper to be loaded
+        /*
+        var tooltip = new Tooltip(info.el, {
+          title: "info.event.extendedProps.description",
+          placement: 'top',
+          trigger: 'hover',
+          container: 'body'
+        });
+        */
+
+      },
+      eventChange: function(info) {
+        alert("change to " + info.event.title);
+      },
+      eventDrop: function(info) {
+        //alert(info.event.title + " was dropped on " + info.event.start.toISOString());
+        if (info.event.groupId) {
+          alert("Move entire group, or just " + info.event.title);
+        }
+      },
+      events: [{
+          id: '0001',
+          editable: true,
+          title: 'Ruth',
+          start: '2020-09-14T06:00:00',
+          borderColor: 'red',
+          backgroundColor: 'red'
+        },
+        {
+          id: '0002',
+          editable: true,
+          title: 'Nelson',
+          start: '2020-09-14T07:00:00'
+        },
+        {
+          id: '0003',
+          groupId: '0001',
+          editable: true,
+          title: 'Barney',
+          start: '2020-09-14T08:00:00',
+          end: '2020-09-14T09:00:00'
+        },
+        {
+          id: '0004',
+          groupId: '0001',
+          editable: true,
+          title: 'Fred',
+          start: '2020-09-14T08:00:00',
+          end: '2020-09-14T09:00:00'
+        },
+        {
+          id: '0005',
+          groupId: '0002',
+          editable: true,
+          title: 'Billy',
+          startRecur: 'today',
+          startTime: '10:00:00',
+          daysOfWeek: [2, 4]
+        },
+        {
+          title: 'Birthday Party',
+          start: '2020-09-13T07:00:00'
+        },
+        {
+          title: 'Click for Google',
+          url: 'http://google.com/',
+          start: '2020-09-28'
+        }
+      ]
+    });
+
+    calendar.render();
+  });
+</script>
+{% endblock %}
