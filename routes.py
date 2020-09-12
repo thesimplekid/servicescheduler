@@ -1,5 +1,6 @@
 import logging
 
+import models
 from flask import Blueprint, render_template
 
 routes_for_flask = Blueprint(
@@ -23,7 +24,9 @@ def testcalendar():
 @ routes_for_flask.route('/students')
 def student_view():
     logging.info('in routes/student_view')
-    return render_template('student/view.html')
+    data = models.get_all_students()
+    logging.info(data)
+    return render_template('student/view.html', data=data)
 
 
 @ routes_for_flask.route('/student/create')
