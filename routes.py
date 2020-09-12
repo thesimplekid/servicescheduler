@@ -37,6 +37,12 @@ def student_create():
     return render_template('student/create.html')
 
 
+@routes_for_flask.route('/student/iep')
+def student_iep():
+    data = models.get_iep_for_student(1)
+    return jsonify(data)
+
+
 @routes_for_flask.app_errorhandler(404)
 def handle_404(err):
     logging.info('in handle_404')
