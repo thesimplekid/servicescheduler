@@ -169,8 +169,7 @@ def get_all_students():
     result = []
     all = db.session.query(Student).all()
     [result.append(asdict(row)) for row in all]
-    student_json_string = json.dumps(result)
-    return student_json_string
+    return result
 
 
 def populate():

@@ -1,7 +1,7 @@
 import logging
 
 import models
-from flask import Blueprint, render_template
+from flask import Blueprint, jsonify, render_template
 
 routes_for_flask = Blueprint(
     'routes_for_flask', __name__, template_folder='templates')
@@ -24,9 +24,13 @@ def testcalendar():
 @ routes_for_flask.route('/students')
 def student_view():
     logging.info('in routes/student_view')
+    return render_template('student/view.html')
+
+
+@ routes_for_flask.route('/students/json')
+def student_json():
     data = models.get_all_students()
-    logging.info(data)
-    return render_template('student/view.html', data=data)
+    return jsonify(data)
 
 
 @ routes_for_flask.route('/student/create')
