@@ -1,7 +1,7 @@
 import logging
 
 import models
-from flask import Blueprint, jsonify, render_template
+from flask import Blueprint, jsonify, render_template, request
 
 routes_for_flask = Blueprint(
     'routes_for_flask', __name__, template_folder='templates')
@@ -39,7 +39,8 @@ def student_create():
 
 @routes_for_flask.route('/student/iep')
 def student_iep():
-    data = models.get_iep_for_student(1)
+    student_id = request.args.get('student_id')
+    data = models.get_iep_for_student(student_id)
     return jsonify(data)
 
 
