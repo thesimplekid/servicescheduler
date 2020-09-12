@@ -1,3 +1,4 @@
+import json
 import logging
 import time
 from dataclasses import asdict, dataclass
@@ -26,10 +27,6 @@ class Student(db.Model):
     student_iep_mandate = db.relationship(
         'Iepmandate', back_populates='student')
 
-    '''
-    student_ = db.relationship(
-        'Iepmandate', back_populates='student')
-        '''
     student_rules = db.relationship('Rule', back_populates='student')
 
     student_sessions = db.relationship(
@@ -166,6 +163,14 @@ def insert_session(date_passed, start_time_passed, end_time_passed, duration_pas
                           attended=attended_passed, notes=notes_passed, student_id=student_id_passed, rule_id=rule_id_passed)
     db.session.add(new_session)
     db.session.commit()
+
+
+def get_all_students():
+    result = []
+    all = db.session.query(Student).all()
+    [result.append(asdict(row)) for row in all]
+    student_json_string = json.dumps(result)
+    return student_json_string
 
 
 def populate():
