@@ -1,7 +1,7 @@
 import logging
 
 import models
-from flask import Blueprint, jsonify, render_template
+from flask import Blueprint, jsonify, render_template, request
 
 routes_for_flask = Blueprint(
     'routes_for_flask', __name__, template_folder='templates')
@@ -35,3 +35,17 @@ def student_json():
 def student_create():
     logging.info('in routes/student_create')
     return render_template('student/create.html')
+
+
+@routes_for_flask.route('/student/iep')
+def student_iep():
+    student_id = request.args.get('student_id')
+    data = models.get_iep_for_student(student_id)
+    return jsonify(data)
+
+
+@routes_for_flask.app_errorhandler(404)
+def handle_404(err):
+    logging.info('in handle_404')
+    return render_template('404.html'), 404
+

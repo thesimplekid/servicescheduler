@@ -55,7 +55,7 @@ class Iepmandate(db.Model):
 
     types = ('speech', 'OT', 'PT', 'Counseling')
     type_enum = Enum(*types, name="type")
-    type: int = db.Column(type_enum, nullable=False)
+    type: str = db.Column(type_enum, nullable=False)
 
     # TODO: figure out deletes
 
@@ -168,6 +168,13 @@ def insert_session(date_passed, start_time_passed, end_time_passed, duration_pas
 def get_all_students():
     result = []
     all = db.session.query(Student).all()
+    [result.append(asdict(row)) for row in all]
+    return result
+
+
+def get_iep_for_student(student_id_passed):
+    result = []
+    all = Iepmandate.query.filter_by(student_id=student_id_passed).all()
     [result.append(asdict(row)) for row in all]
     return result
 
