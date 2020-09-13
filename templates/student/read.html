@@ -19,6 +19,14 @@
   <dd class="col-sm-9">{{ data.osis_number }}</dd>
 </dl>
 
+<h3>IEP Mandates</h3>
+<h1>list group</h1>
+<div id="iepMandates" class="list-group"></div>
+
+<h1>definition list</h1>
+<dl class="row" id="iep_dl"></dl>
+
+<h1>table</h1>
 <div class="card border-secondary mb-3">
   <div class="card-header">IEP Mandates</div>
   <div class="card-body">
@@ -42,6 +50,51 @@
 {% block endcontent %}
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+
+    //list group
+    var iep_node = document.querySelector('#iepMandates');
+
+    $.getJSON("/iep?student_id={{ data.student_id }}", function(data) {
+      data.forEach(function(mandate) {
+        var mandate_node = document.createElement('div');
+        var text_node = document.createTextNode(mandate.type + ": " + mandate.frequency + "/week for " + mandate.duration + "minutes in a group of " + mandate.group_size);
+        mandate_node.classList.add("list-group-item");
+        mandate_node.appendChild(text_node);
+        iep_node.appendChild(mandate_node);
+
+        //now add rules (if any)
+      });
+    });
+
+    //dl
+    var iep_dl = document.querySelector('#iep_dl');
+
+    $.getJSON("/iep?student_id={{ data.student_id }}", function(data) {
+      data.forEach(function(mandate) {
+        var mandate_node = document.createElement('dt');
+        var text_node = document.createTextNode(mandate.type + ": " + mandate.frequency + "/week for " + mandate.duration + "minutes in a group of " + mandate.group_size);
+        mandate_node.classList.add("col-sm-3");
+        mandate_node.appendChild(text_node);
+        iep_dl.appendChild(mandate_node);
+
+        //now add rules (if any)
+
+        //now add "add rule" button
+        var rule_button = document.createElement('button');
+        rule_button.classList.add('btn');
+        rule_button.classList.add('btn-primary');
+        text_node = document.createTextNode('Add Rule');
+        rule_button.appendChild(text_node);
+        //finish - rule not added anywhere
+        //no action added to button
+      });
+    });
+
+
+
+
+
+
     var IEPTableBody = document.querySelector('#IEPMandatesTableBody');
     var keys = ["type", "frequency", "duration", "group_size"];
     var tbody = document.querySelector('#IEPMandatesTableBody');
