@@ -25,5 +25,5 @@ if __name__ == "__main__":
     app = create_app()
     app.app_context().push()
     models.db.create_all()
-    # models.populate()
+    models.populate()
     app.run()

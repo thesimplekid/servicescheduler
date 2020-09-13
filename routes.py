@@ -25,7 +25,12 @@ def student_view():
     return render_template('student/view.html')
 
 
-@routes_for_flask.route('/student/<id>')
+@routes_for_flask.route('/student/new', methods=['GET', 'POST'])
+def new_student():
+    logging.info('hi')
+
+
+@routes_for_flask.route('/student/<int:id>')
 def student_info(id):
     data = models.get_student_info(id)
     logging.info(data)
@@ -42,6 +47,17 @@ def student_json():
 def student_create():
     logging.info('in routes/student_create')
     return render_template('student/create.html')
+
+
+@routes_for_flask.route('/providers')
+def provider_view():
+    return render_template('provider/view.html')
+
+
+@routes_for_flask.route('/providers/json')
+def provider_json():
+    data = models.get_all_providers()
+    return jsonify(data)
 
 
 @routes_for_flask.route('/iep')
