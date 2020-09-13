@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block headcontent %}
+<title>New Provider</title>
+{% endblock %}
+
+{% block content %}
+<form method=post action="" enctype="multipart/form-data">
+  <fieldset>
+    <legend>Add a new provider</legend>
+    {{form.csrf_token}}
+
+    {{form.provider_ref_id.label}}<br>
+    {{form.provider_ref_id}}
+    <br>
+
+    {{form.first_name.label}}<br>
+    {{form.first_name}}
+    <br>
+
+    {{form.last_name.label}}<br>
+    {{form.last_name}}
+    <br>
+
+    {{form.submit}}
+
+  </fieldset>
+
+</form>
+{% endblock %}
+
+{% block endcontent %}
+{% endblock %}

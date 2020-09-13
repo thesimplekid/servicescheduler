@@ -71,6 +71,22 @@ def provider_json():
     return jsonify(data)
 
 
+@routes_for_flask.route('/provider/new', methods=['GET', 'POST'])
+def new_provider():
+    form = forms.add_provider()
+
+    if request.method == 'POST':
+        if form.validate() == False:
+            return render_template('provider/create.html', form=form)
+        else:
+            models.insert_provider(
+                form.provider_ref_id.data, form.first_name.data, form.last_name.data)
+            return redirect('/providers')
+
+    else:
+        return render_template('provider/create.html', form=form)
+
+
 @routes_for_flask.route('/iep')
 def iep_student():
     student_id = request.args.get('student_id')
