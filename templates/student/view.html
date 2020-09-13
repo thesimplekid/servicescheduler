@@ -13,9 +13,8 @@
 
 {% block endcontent %}
 <script>
-  var studentTable = document.querySelector('#studentTable');
-
   document.addEventListener('DOMContentLoaded', function() {
+    var studentTable = document.querySelector('#studentTable');
     var keys = ["student_id", "first_name", "last_name", "grade", "osis_number", "schoolDBN"];
     var tableHead = document.createElement('thead');
     var tableHeadRow = document.createElement('tr');

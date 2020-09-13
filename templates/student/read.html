@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block headcontent %}
+<title>Student</title>
+{% endblock %}
+
+{% block content %}
+<dl class="row">
+  <dt class="col-sm-3">Name<dt>
+  <dd class="col-sm-9">{{ data.first_name }} {{ data.last_name }}</dd>
+
+  <dt class="col-sm-3">Grade<dt>
+  <dd class="col-sm-9">{{ data.grade }}</dd>
+
+  <dt class="col-sm-3">School DBN<dt>
+  <dd class="col-sm-9">{{ data.schoolDBN }}</dd>
+
+  <dt class="col-sm-3">OSIS<dt>
+  <dd class="col-sm-9">{{ data.osis_number }}</dd>
+</dl>
+
+<div class="card border-secondary mb-3">
+  <div class="card-header">IEP Mandates</div>
+  <div class="card-body">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Frequency</th>
+          <th>Duration</th>
+          <th>Group Size</th>
+        </tr>
+      </thead>
+      <tbody id="IEPMandatesTableBody">
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block endcontent %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var IEPTableBody = document.querySelector('#IEPMandatesTableBody');
+    var keys = ["type", "frequency", "duration", "group_size"];
+    var tbody = document.querySelector('#IEPMandatesTableBody');
+
+    $.getJSON("/iep?student_id={{ data.student_id }}", function(data) {
+      data.forEach(function(obj, key) {
+        var trow = document.createElement('tr');
+        /*
+        trow.onclick = function(event) {
+          window.location.href = "/student/" + obj.student_id;
+        };
+        */
+
+        tbody.appendChild(trow);
+
+        keys.forEach(function(item, index) {
+          var textnode = document.createTextNode(obj[item]);
+          var tcell = document.createElement('td');
+          tcell.appendChild(textnode);
+          trow.appendChild(tcell);
+        });
+      });
+    });
+
+  });
+</script>
+{% endblock %}

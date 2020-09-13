@@ -44,8 +44,8 @@ def student_create():
     return render_template('student/create.html')
 
 
-@routes_for_flask.route('/student/iep')
-def student_iep():
+@routes_for_flask.route('/iep')
+def iep_student():
     student_id = request.args.get('student_id')
     data = models.get_iep_for_student(student_id)
     return jsonify(data)
