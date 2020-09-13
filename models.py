@@ -201,6 +201,13 @@ def get_student_info(student_id_passed):
     return asdict(student)
 
 
+def get_rules_for_iep(mandate_id_passed):
+    result = []
+    rules = Rule.query.filter_by(iep_id=mandate_id_passed).all()
+    [result.append(asdict(row)) for row in rules]
+    return result
+
+
 def populate():
     insert_student(88, 'Jack', 'Murphy', 'pre-k', '127Q2')
     insert_student(99, 'Brendan', 'Murphy', '1', '9674q')
