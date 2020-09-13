@@ -13,6 +13,12 @@ db = SQLAlchemy()
 
 tz = timezone('EST')
 
+frequency = ('weekly', 'daily')
+frequency_enum = Enum(*frequency, name='frequency')
+
+locations = ('teletheraphy', 'in-person', 'in-classroom')
+location_enum = Enum(*locations, name='location')
+
 
 @dataclass
 class Student(db.Model):
@@ -29,8 +35,11 @@ class Student(db.Model):
 
     student_rules = db.relationship('Rule', back_populates='student')
 
+
+'''
     student_sessions = db.relationship(
         'Session', back_populates='student_in_session')
+'''
 
 
 @dataclass
@@ -73,24 +82,23 @@ class Rule(db.Model):
     rule_id = db.Column(
         db.Integer, primary_key=True, autoincrement=True)
 
-    locations = ('teletheraphy', 'in-person', 'in-classroom')
-    location_enum = Enum(*locations, name='location')
-
     location: int = db.Column(location_enum, nullable=False)
 
-    intervals = ('weekly', 'daily')
-    interval_enum = Enum(*intervals, name='interval')
-    interval: int = db.Column(interval_enum, nullable=False)
+    frequency: str = db.Column(frequency_enum, nullable=False)
 
-    days = ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')
-    days_enum = Enum(*days, name='day')
-    day: int = db.Column(days_enum, nullable=False)
+    monday: bool = db.Column(db.Boolean, default=False, nullable=False)
+    tuesday: bool = db.Column(db.Boolean, default=False, nullable=False)
+    wednesday: bool = db.Column(db.Boolean, default=False, nullable=False)
+    thursday: bool = db.Column(db.Boolean, default=False, nullable=False)
+    friday: bool = db.Column(db.Boolean, default=False, nullable=False)
 
-    repeats: int = db.Column(db.Integer, nullable=False)
+    interval: int = db.Column(db.Integer, nullable=False)
 
     start_date: datetime.date = db.Column(db.Date, nullable=False)
     end_date: datetime.date = db.Column(db.Date, nullable=False)
     start_time = db.Column(db.Time, nullable=False)
+
+    duration: int = db.Column(db.Integer, nullable=False)
 
     provider_id: int = db.Column(db.Integer, db.ForeignKey(
         'provider.provider_id'), nullable=False)
@@ -104,6 +112,8 @@ class Rule(db.Model):
         'student.student_id'), nullable=False)
     student = db.relationship("Student", back_populates='student_rules')
 
+
+'''
     rule_sessions = db.relationship('Session', back_populates='rule')
 
 
@@ -129,6 +139,7 @@ class Session(db.Model):
     rule_id: int = db.Column(db.Integer, db.ForeignKey(
         'rule.rule_id'), nullable=False)
     rule = db.relationship("Rule", back_populates='rule_sessions')
+'''
 
 
 def insert_student(osis_number_passed, first_name_passed, last_name_passed, grade_passed, schoolDBN_passed):
@@ -160,9 +171,9 @@ def insert_iepmandate(frequency_passed, duration_passed, group_size_passed, type
     db.session.commit()
 
 
-def insert_rule(location_passed, interval_passed, day_passed, repeats_passed, start_date_passed, end_date_passed, start_time_passed, provider_id_passed, iep_id_passed, student_id_passed):
-    new_rule = Rule(location=location_passed, interval=interval_passed, day=day_passed, repeats=repeats_passed, start_date=start_date_passed,
-                    end_date=end_date_passed, start_time=start_time_passed, provider_id=provider_id_passed, iep_id=iep_id_passed, student_id=student_id_passed)
+def insert_rule(location_passed, interval_passed, frequency_passed, start_date_passed, end_date_passed, start_time_passed, provider_id_passed, iep_id_passed, student_id_passed, duration_passed):
+    new_rule = Rule(location=location_passed, interval=interval_passed, frequency=frequency_passed, start_date=start_date_passed,
+                    end_date=end_date_passed, start_time=start_time_passed, provider_id=provider_id_passed, iep_id=iep_id_passed, student_id=student_id_passed, duration=duration_passed)
     db.session.add(new_rule)
     db.session.commit()
 
@@ -220,13 +231,17 @@ def populate():
     currentDT = datetime.now()
     timers = currentDT.strftime("%H:%M")
 
-    insert_rule('in-person', 'weekly', 'Monday', 2, datetime(2020,
-                                                             5, 17), datetime(2020, 6, 17), timers, 1, 1, 1)
+    insert_rule('in-person', 2, 'weekly', datetime(2020,
+                                                   5, 17), datetime(2020, 6, 17), timers, 1, 1, 1, 60)
 
-    insert_rule('teletheraphy', 'daily', 'Tuesday', 2, datetime(
-        2020, 6, 18), datetime(2020, 7, 17), timers, 2, 2, 2)
+    insert_rule('teletheraphy', 1, 'daily', datetime(
+        2020, 6, 18), datetime(2020, 7, 17), timers, 2, 2, 2, 45)
 
+
+'''
     insert_session(datetime(2020, 7, 17), timers,
                    timers, 77, True, 'hi', 1, 1)
     insert_session(datetime(2020, 7, 18), timers,
                    timers, 77, False, 'hi', 2, 2)
+
+'''
