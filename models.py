@@ -179,6 +179,12 @@ def get_iep_for_student(student_id_passed):
     return result
 
 
+def get_student_info(student_id_passed):
+    result = []
+    student = Student.query.filter_by(student_id=student_id_passed).first()
+    return asdict(student)
+
+
 def populate():
     insert_student(88, 'Jack', 'Murphy', 'pre-k', '127Q2')
     insert_student(99, 'Brendan', 'Murphy', '1', '9674q')

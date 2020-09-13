@@ -25,6 +25,13 @@ def student_view():
     return render_template('student/view.html')
 
 
+@routes_for_flask.route('/student/<id>')
+def student_info(id):
+    data = models.get_student_info(id)
+    logging.info(data)
+    return render_template('student/read.html', data=data)
+
+
 @ routes_for_flask.route('/students/json')
 def student_json():
     data = models.get_all_students()
@@ -48,4 +55,3 @@ def student_iep():
 def handle_404(err):
     logging.info('in handle_404')
     return render_template('404.html'), 404
-
