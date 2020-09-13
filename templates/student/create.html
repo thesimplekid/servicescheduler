@@ -5,7 +5,35 @@
 {% endblock %}
 
 {% block content %}
-<form>
+<form method=post action="" enctype="multipart/form-data">
+  <fieldset>
+    <legend>Add a new student</legend>
+    {{form.csrf_token}}
+
+    {{form.osis_number.label}}<br>
+    {{form.osis_number}}
+    <br>
+
+    {{form.first_name.label}}<br>
+    {{form.first_name}}
+    <br>
+
+    {{form.last_name.label}}<br>
+    {{form.last_name}}
+    <br>
+
+    {{form.grade.label}}<br>
+    {{form.grade}}
+    <br>
+
+    {{form.schoolDBN.label}}<br>
+    {{form.schoolDBN}}
+    <br>
+
+    {{form.submit}}
+
+
+  </fieldset>
 
 </form>
 {% endblock %}

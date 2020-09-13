@@ -1,7 +1,8 @@
 import logging
 
+import forms
 import models
-from flask import Blueprint, jsonify, render_template, request
+from flask import Blueprint, jsonify, redirect, render_template, request
 
 routes_for_flask = Blueprint(
     'routes_for_flask', __name__, template_folder='templates')
@@ -27,7 +28,17 @@ def student_view():
 
 @routes_for_flask.route('/student/new', methods=['GET', 'POST'])
 def new_student():
-    logging.info('hi')
+    form = forms.add_student()
+
+    if request.method == 'POST':
+        if form.validate() == False:
+            return render_template('student/create.html', form=form)
+        else:
+            models.insert_student(
+                form.osis_number.data, form.first_name.data, form.last_name.data, form.grade.data, form.schoolDBN.data)
+            return redirect('/students')
+    else:
+        return render_template('student/create.html', form=form)
 
 
 @routes_for_flask.route('/student/<int:id>')
