@@ -34,14 +34,15 @@ class Student(db.Model):
 
 
 @dataclass
-class Therapist(db.Model):
-    therapist_id: int = db.Column(
+class Provider(db.Model):
+    provider_id: int = db.Column(
         db.Integer, primary_key=True, autoincrement=True)
-    therapist_ref_id: str = db.Column(db.String(80), nullable=False)
+    provider_ref_id: str = db.Column(
+        db.String(80), nullable=False, unique=True)
     first_name: str = db.Column(db.String(120), nullable=False)
     last_name: str = db.Column(db.String(120), nullable=False)
 
-    therapist_rules = db.relationship('Rule', back_populates='therapist')
+    provider_rules = db.relationship('Rule', back_populates='provider')
 
 
 @dataclass
@@ -91,9 +92,9 @@ class Rule(db.Model):
     end_date: datetime.date = db.Column(db.Date, nullable=False)
     start_time = db.Column(db.Time, nullable=False)
 
-    therapist_id: int = db.Column(db.Integer, db.ForeignKey(
-        'therapist.therapist_id'), nullable=False)
-    therapist = db.relationship("Therapist", back_populates='therapist_rules')
+    provider_id: int = db.Column(db.Integer, db.ForeignKey(
+        'provider.provider_id'), nullable=False)
+    provider = db.relationship("Provider", back_populates='provider_rules')
 
     iep_id: int = db.Column(db.Integer, db.ForeignKey(
         'iepmandate.iep_id'), nullable=False)
@@ -131,17 +132,25 @@ class Session(db.Model):
 
 
 def insert_student(osis_number_passed, first_name_passed, last_name_passed, grade_passed, schoolDBN_passed):
-    new_student = Student(osis_number=osis_number_passed, first_name=first_name_passed,
-                          last_name=last_name_passed, grade=grade_passed, schoolDBN=schoolDBN_passed)
-    db.session.add(new_student)
-    db.session.commit()
+    if(db.session.query(Student.osis_number).filter_by(osis_number=osis_number_passed).scalar() is None):
+
+        new_student = Student(osis_number=osis_number_passed, first_name=first_name_passed,
+                              last_name=last_name_passed, grade=grade_passed, schoolDBN=schoolDBN_passed)
+        db.session.add(new_student)
+        db.session.commit()
+    else:
+        logging.info('Student already exisits')
 
 
-def insert_therapist(therapist_ref_id_passed, first_name_passed, last_name_passed):
-    new_therapist = Therapist(therapist_ref_id=therapist_ref_id_passed,
-                              first_name=first_name_passed, last_name=last_name_passed)
-    db.session.add(new_therapist)
-    db.session.commit()
+def insert_provider(provider_ref_id_passed, first_name_passed, last_name_passed):
+    if (db.session.query(Provider.provider_ref_id).filter_by(provider_ref_id=provider_ref_id_passed).scalar() is None):
+
+        new_provider = Provider(provider_ref_id=provider_ref_id_passed,
+                                first_name=first_name_passed, last_name=last_name_passed)
+        db.session.add(new_provider)
+        db.session.commit()
+    else:
+        logging.info('Provider already exists')
 
 
 def insert_iepmandate(frequency_passed, duration_passed, group_size_passed, type_passed, student_id_passed):
@@ -151,9 +160,9 @@ def insert_iepmandate(frequency_passed, duration_passed, group_size_passed, type
     db.session.commit()
 
 
-def insert_rule(location_passed, interval_passed, day_passed, repeats_passed, start_date_passed, end_date_passed, start_time_passed, therapist_id_passed, iep_id_passed, student_id_passed):
+def insert_rule(location_passed, interval_passed, day_passed, repeats_passed, start_date_passed, end_date_passed, start_time_passed, provider_id_passed, iep_id_passed, student_id_passed):
     new_rule = Rule(location=location_passed, interval=interval_passed, day=day_passed, repeats=repeats_passed, start_date=start_date_passed,
-                    end_date=end_date_passed, start_time=start_time_passed, therapist_id=therapist_id_passed, iep_id=iep_id_passed, student_id=student_id_passed)
+                    end_date=end_date_passed, start_time=start_time_passed, provider_id=provider_id_passed, iep_id=iep_id_passed, student_id=student_id_passed)
     db.session.add(new_rule)
     db.session.commit()
 
@@ -172,6 +181,13 @@ def get_all_students():
     return result
 
 
+def get_all_providers():
+    result = []
+    all = db.session.query(Provider).all()
+    [result.append(asdict(row)) for row in all]
+    return result
+
+
 def get_iep_for_student(student_id_passed):
     result = []
     all = Iepmandate.query.filter_by(student_id=student_id_passed).all()
@@ -185,12 +201,19 @@ def get_student_info(student_id_passed):
     return asdict(student)
 
 
+def get_rules_for_iep(mandate_id_passed):
+    result = []
+    rules = Rule.query.filter_by(iep_id=mandate_id_passed).all()
+    [result.append(asdict(row)) for row in rules]
+    return result
+
+
 def populate():
     insert_student(88, 'Jack', 'Murphy', 'pre-k', '127Q2')
     insert_student(99, 'Brendan', 'Murphy', '1', '9674q')
 
-    insert_therapist(74783, 'Caroline', 'Murphy')
-    insert_therapist(7646783, "tom", 'Murphy')
+    insert_provider(74783, 'Caroline', 'Murphy')
+    insert_provider(7646783, "tom", 'Murphy')
 
     insert_iepmandate(5, 65, 2, 'speech', 1)
     insert_iepmandate(2, 45, 1, 'PT', 2)

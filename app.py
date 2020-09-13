@@ -17,6 +17,7 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     # Shows sql querys being made if having database issue set to true
     app.config['SQLALCHEMY_ECHO'] = True
+    app.secret_key = config.secret_key
     models.db.init_app(app)
     return app
 
@@ -25,5 +26,5 @@ if __name__ == "__main__":
     app = create_app()
     app.app_context().push()
     models.db.create_all()
-    # models.populate()
+    models.populate()
     app.run()

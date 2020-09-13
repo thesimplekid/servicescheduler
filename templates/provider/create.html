@@ -1,17 +1,17 @@
 {% extends "base.html" %}
 
 {% block headcontent %}
-<title>New Student</title>
+<title>New Provider</title>
 {% endblock %}
 
 {% block content %}
 <form method=post action="" enctype="multipart/form-data">
   <fieldset>
-    <legend>Add a new student</legend>
+    <legend>Add a new provider</legend>
     {{form.csrf_token}}
 
-    {{form.osis_number.label}}<br>
-    {{form.osis_number}}
+    {{form.provider_ref_id.label}}<br>
+    {{form.provider_ref_id}}
     <br>
 
     {{form.first_name.label}}<br>
@@ -22,16 +22,7 @@
     {{form.last_name}}
     <br>
 
-    {{form.grade.label}}<br>
-    {{form.grade}}
-    <br>
-
-    {{form.schoolDBN.label}}<br>
-    {{form.schoolDBN}}
-    <br>
-
     {{form.submit}}
-
 
   </fieldset>
 

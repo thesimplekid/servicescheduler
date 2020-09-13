@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block headcontent %}
+<title>Students</title>
+{% endblock %}
+
+{% block content %}
+<table class="table" id="providerTable">
+  <caption>List of students</caption>
+</table>
+
+{% endblock %}
+
+{% block endcontent %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var providerTable = document.querySelector('#providerTable');
+    var keys = ["provider_id", "first_name", "last_name", "provider_ref_id"];
+    var tableHead = document.createElement('thead');
+    var tableHeadRow = document.createElement('tr');
+    tableHead.appendChild(tableHeadRow);
+    providerTable.appendChild(tableHead);
+
+    keys.forEach(function(item, index) {
+      var thcell = document.createElement('th');
+      var textnode = document.createTextNode(item);
+      thcell.appendChild(textnode);
+      tableHeadRow.appendChild(thcell);
+    });
+
+    var tbody = document.createElement('tbody');
+    providerTable.appendChild(tbody);
+
+    $.getJSON("/providers/json", function(data) {
+      data.forEach(function(obj, key) {
+        var trow = document.createElement('tr');
+        trow.onclick = function(event) {
+          window.location.href = "/provider/" + obj.student_id;
+        };
+
+        tbody.appendChild(trow);
+
+        keys.forEach(function(item, index) {
+          var textnode = document.createTextNode(obj[item]);
+          var tcell = document.createElement('td');
+          tcell.appendChild(textnode);
+          trow.appendChild(tcell);
+        });
+      });
+    });
+
+  });
+</script>
+{% endblock %}
