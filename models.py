@@ -2,7 +2,7 @@ import json
 import logging
 import time
 from dataclasses import asdict, dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from pytz import timezone
 
@@ -79,7 +79,7 @@ class Iepmandate(db.Model):
 @dataclass
 class Rule(db.Model):
 
-    rule_id = db.Column(
+    rule_id: int = db.Column(
         db.Integer, primary_key=True, autoincrement=True)
 
     location: int = db.Column(location_enum, nullable=False)
@@ -94,9 +94,8 @@ class Rule(db.Model):
 
     interval: int = db.Column(db.Integer, nullable=False)
 
-    start_date: datetime.date = db.Column(db.Date, nullable=False)
+    start_date: datetime.date = db.Column(db.DateTime, nullable=False)
     end_date: datetime.date = db.Column(db.Date, nullable=False)
-    start_time = db.Column(db.Time, nullable=False)
 
     duration: int = db.Column(db.Integer, nullable=False)
 
@@ -171,9 +170,9 @@ def insert_iepmandate(frequency_passed, duration_passed, group_size_passed, type
     db.session.commit()
 
 
-def insert_rule(location_passed, interval_passed, frequency_passed, start_date_passed, end_date_passed, start_time_passed, provider_id_passed, iep_id_passed, student_id_passed, duration_passed):
+def insert_rule(location_passed, interval_passed, frequency_passed, start_date_passed, end_date_passed, provider_id_passed, iep_id_passed, student_id_passed, duration_passed):
     new_rule = Rule(location=location_passed, interval=interval_passed, frequency=frequency_passed, start_date=start_date_passed,
-                    end_date=end_date_passed, start_time=start_time_passed, provider_id=provider_id_passed, iep_id=iep_id_passed, student_id=student_id_passed, duration=duration_passed)
+                    end_date=end_date_passed, provider_id=provider_id_passed, iep_id=iep_id_passed, student_id=student_id_passed, duration=duration_passed)
     db.session.add(new_rule)
     db.session.commit()
 
@@ -190,6 +189,16 @@ def get_all_students():
     all = db.session.query(Student).all()
     [result.append(asdict(row)) for row in all]
     return result
+
+
+def get_student_by_id(student_id_passed):
+    student = Student.query.filter_by(student_id=student_id_passed).first()
+    return student
+
+
+def get_iep_by_id(iep_id_passed):
+    iep = Iepmandate.query.filter_by(iep_id=iep_id_passed).first()
+    return iep
 
 
 def get_all_providers():
@@ -219,6 +228,71 @@ def get_rules_for_iep(mandate_id_passed):
     return result
 
 
+def get_rules_for_student(student_id):
+    result = []
+    student = get_student_by_id(student_id)
+    rules = student.student_rules
+    [result.append(asdict(row)) for row in rules]
+    return result
+
+
+def get_event_titile(iep_id):
+    result = []
+    iep = get_iep_by_id(iep_id)
+    type = iep.type
+    freq = iep.frequency
+    dur = iep.duration
+    group_size = iep.group_size
+
+    return type + " " + str(freq) + "x" + str(dur) + "x" + str(group_size)
+
+
+def rules_for_student_tojson(student_id):
+    # return json for the calander view
+    result = []
+    li_dics = get_rules_for_student(student_id)
+
+    for dic in li_dics:
+        event_dic = {}
+        rrule_dic = {}
+        extendedProps_dic = {}
+        day_li = []
+
+        if dic['monday'] == True:
+            day_li.append('mo')
+        if dic['tuesday'] == True:
+            day_li.append('tu')
+        if dic['wednesday'] == True:
+            day_li.append('we')
+        if dic['thursday'] == True:
+            day_li.append('th')
+        if dic['friday'] == True:
+            day_li.append('fr')
+
+        rrule_dic['dtstart'] = dic['start_date'].strftime("%Y-%m-%dT%H:%M:%S")
+        rrule_dic['until'] = dic['end_date'].strftime("%Y-%m-%d")
+        rrule_dic['byweekday'] = day_li
+        rrule_dic['interval'] = dic['interval']
+        rrule_dic['frequency'] = dic['frequency']
+
+        extendedProps_dic['location'] = dic['location']
+        extendedProps_dic['iep_id'] = dic['iep_id']
+        extendedProps_dic['student_id'] = dic['student_id']
+
+        event_dic['title'] = get_event_titile(dic['iep_id'])
+        event_dic['duration'] = str(timedelta(minutes=dic['duration']))[:-3]
+        event_dic['id'] = dic['rule_id']
+        event_dic['rrule'] = rrule_dic
+        event_dic['extendedProps'] = extendedProps_dic
+
+        result.append(event_dic)
+
+    final_dic = {}
+    final_dic['events'] = result
+    logging.info(final_dic)
+    return (final_dic)
+
+
 def populate():
     insert_student(88, 'Jack', 'Murphy', 'pre-k', '127Q2')
     insert_student(99, 'Brendan', 'Murphy', '1', '9674q')
@@ -228,14 +302,12 @@ def populate():
 
     insert_iepmandate(5, 65, 2, 'speech', 1)
     insert_iepmandate(2, 45, 1, 'PT', 2)
-    currentDT = datetime.now()
-    timers = currentDT.strftime("%H:%M")
 
-    insert_rule('in-person', 2, 'weekly', datetime(2020,
-                                                   5, 17), datetime(2020, 6, 17), timers, 1, 1, 1, 60)
+    insert_rule('in-person', 2, 'weekly', datetime(2020, 5, 17, 10,
+                                                   15), datetime(2020, 6, 17, 10, 30), 1, 1, 1, 45)
 
     insert_rule('teletheraphy', 1, 'daily', datetime(
-        2020, 6, 18), datetime(2020, 7, 17), timers, 2, 2, 2, 45)
+        2020, 6, 18, 11, 00), datetime(2020, 7, 17), 2, 2, 2, 45)
 
 
 '''

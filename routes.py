@@ -101,6 +101,14 @@ def rules_for_iep():
     return jsonify(data)
 
 
+@routes_for_flask.route('/rules/student')
+def rules_for_student():
+    student_id = request.args.get('student_id')
+    result = models.rules_for_student_tojson(student_id)
+    string = result
+    return jsonify(string)
+
+
 @routes_for_flask.app_errorhandler(404)
 def handle_404(err):
     logging.info('in handle_404')
