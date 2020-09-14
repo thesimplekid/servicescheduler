@@ -19,6 +19,9 @@ frequency_enum = Enum(*frequency, name='frequency')
 locations = ('teletheraphy', 'in-person', 'in-classroom')
 location_enum = Enum(*locations, name='location')
 
+types = ('speech', 'OT', 'PT', 'Counseling')
+type_enum = Enum(*types, name="type")
+
 
 @dataclass
 class Student(db.Model):
@@ -51,6 +54,8 @@ class Provider(db.Model):
     first_name: str = db.Column(db.String(120), nullable=False)
     last_name: str = db.Column(db.String(120), nullable=False)
 
+    provider_type: str = db.Column(type_enum, nullable=False)
+
     provider_rules = db.relationship('Rule', back_populates='provider')
 
 
@@ -63,8 +68,6 @@ class Iepmandate(db.Model):
     duration: int = db.Column(db.Integer, nullable=False)
     group_size: int = db.Column(db.Integer, nullable=False)
 
-    types = ('speech', 'OT', 'PT', 'Counseling')
-    type_enum = Enum(*types, name="type")
     type: str = db.Column(type_enum, nullable=False)
 
     # TODO: figure out deletes
@@ -166,11 +169,11 @@ def insert_student(osis_number_passed, first_name_passed, last_name_passed, grad
         logging.info('Student already exisits')
 
 
-def insert_provider(provider_ref_id_passed, first_name_passed, last_name_passed):
+def insert_provider(provider_ref_id_passed, first_name_passed, last_name_passed, provider_type_passed):
     if (db.session.query(Provider.provider_ref_id).filter_by(provider_ref_id=provider_ref_id_passed).scalar() is None):
 
         new_provider = Provider(provider_ref_id=provider_ref_id_passed,
-                                first_name=first_name_passed, last_name=last_name_passed)
+                                first_name=first_name_passed, last_name=last_name_passed, provider_type=provider_type_passed)
         db.session.add(new_provider)
         db.session.commit()
     else:
@@ -266,6 +269,14 @@ def get_rules_for_student(student_id):
     return result
 
 
+def get_rules_for_provider(provider_id):
+    result = []
+    provider = get_provider_by_id(provider_id)
+    rules = provider.provider_rules
+    [result.append(asdict(row)) for row in rules]
+    return result
+
+
 def get_event_titile(iep_id):
     result = []
     iep = get_iep_by_id(iep_id)
@@ -286,18 +297,18 @@ def update_rule(rule_id, start_time, end_day):
     end_day = end_day.replace(
         " GMT-0400 (Eastern Daylight Time)", "")[:-9]
     end_date = datetime.strptime(end_day, "%a %b %d %Y")
+    logging.info(end_date)
 
     rule = get_rule_by_id(rule_id)
     logging.info(rule)
     rule.start_date = start_datetime
-    rule.end_date = end_date
+    #rule.end_date = end_date
     db.session.commit()
 
 
-def rules_for_student_tojson(student_id):
+def rules_to_json(li_dics):
     # return json for the calander view
     result = []
-    li_dics = get_rules_for_student(student_id)
 
     for dic in li_dics:
         event_dic = {}
@@ -335,6 +346,7 @@ def rules_for_student_tojson(student_id):
         event_dic['editable'] = True
 
         event_dic['id'] = dic['rule_id']
+        event_dic['groupId'] = dic['rule_id']
         event_dic['rrule'] = rrule_dic
         event_dic['extendedProps'] = extendedProps_dic
 
@@ -342,21 +354,33 @@ def rules_for_student_tojson(student_id):
     return (result)
 
 
+def rules_for_student_to_json(student_id):
+    li_dics = get_rules_for_student(student_id)
+    return rules_to_json(li_dics)
+
+
+def rules_for_provider_to_json(provider_id):
+
+    li_dics = get_rules_for_provider(provider_id)
+
+    return rules_to_json(li_dics)
+
+
 def populate():
     insert_student(88, 'Jack', 'Murphy', 'pre-k', '127Q2')
     insert_student(99, 'Brendan', 'Murphy', '1', '9674q')
 
-    insert_provider(74783, 'Caroline', 'Murphy')
-    insert_provider(7646783, "tom", 'Murphy')
+    insert_provider(74783, 'Caroline', 'Murphy', 'speech')
+    insert_provider(7646783, "tom", 'Murphy', 'ot')
 
     insert_iepmandate(5, 65, 2, 'speech', 1)
     insert_iepmandate(2, 45, 1, 'PT', 2)
 
     insert_rule('in-person', 2, 'weekly', datetime(2020, 5, 17, 8,
-                                                   15), datetime(2020, 6, 17, 10, 30), 1, 1, 1, 45, True, True, False, False, False)
+                                                   15), datetime(2021, 6, 17), 1, 1, 1, 45, True, True, False, False, False)
 
     insert_rule('teletheraphy', 1, 'daily', datetime(
-        2020, 6, 18, 13, 00), datetime(2020, 7, 17), 2, 2, 2, 45, True, False, False, True, False)
+        2020, 6, 18, 13, 00), datetime(2021, 7, 17), 2, 2, 2, 45, True, False, False, True, False)
 
 
 '''

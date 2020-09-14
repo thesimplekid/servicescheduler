@@ -82,14 +82,12 @@ def new_provider():
     form = forms.add_provider()
 
     if request.method == 'POST':
-        if form.validate() == False:
-            return render_template('provider/create.html', form=form)
-        else:
-            models.insert_provider(
-                form.provider_ref_id.data, form.first_name.data, form.last_name.data)
-            return redirect('/providers')
+        models.insert_provider(
+            form.provider_ref_id.data, form.first_name.data, form.last_name.data, form.provider_type.data)
+        return redirect('/providers')
 
     else:
+        form.provider_type.choices = models.tup_to_choices(models.types)
         return render_template('provider/create.html', form=form)
 
 
@@ -145,9 +143,15 @@ def add_rule():
 @routes_for_flask.route('/rules/student')
 def rules_for_student():
     student_id = request.args.get('student_id')
-    result = models.rules_for_student_tojson(student_id)
-    string = result
-    return jsonify(string)
+    result = models.rules_for_student_to_json(student_id)
+    return jsonify(result)
+
+
+@routes_for_flask.route('/rule/provider')
+def rules_for_provider():
+    provider_id = request.args.get('provider_id')
+    result = models.rules_for_provider_to_json(provider_id)
+    return jsonify(result)
 
 
 @routes_for_flask.route('/rule/move', methods=['POST'])
