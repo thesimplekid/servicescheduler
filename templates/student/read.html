@@ -20,105 +20,70 @@
 </dl>
 
 <h3>IEP Mandates</h3>
-<h1>list group</h1>
-<div id="iepMandates" class="list-group"></div>
-
-<h1>definition list</h1>
 <dl class="row" id="iep_dl"></dl>
-
-<h1>table</h1>
-<div class="card border-secondary mb-3">
-  <div class="card-header">IEP Mandates</div>
-  <div class="card-body">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Frequency</th>
-          <th>Duration</th>
-          <th>Group Size</th>
-        </tr>
-      </thead>
-      <tbody id="IEPMandatesTableBody">
-      </tbody>
-    </table>
-  </div>
-</div>
 
 {% endblock %}
 
 {% block endcontent %}
 <script>
+  function addRuleButton(targetnode, iep_id) {
+    //given an iep_id, will add a button to it at targetnode
+    var rule_dd = document.createElement('dd');
+    rule_dd.classList.add('col-sm-9');
+    var rule_button = document.createElement('button');
+    var text_node = document.createTextNode('Add Rule');
+    rule_button.classList.add('btn');
+    rule_button.classList.add('btn-primary');
+    rule_button.setAttribute('type', 'button');
+    rule_button.appendChild(text_node);
+    rule_button.onclick = function(event) {
+      window.location.href = "/rule/new?iep=" + iep_id;
+    };
+    rule_dd.appendChild(rule_button);
+    targetnode.appendChild(rule_dd);
+  }
+
+  function displayRule(targetnode, rule) {
+    //given a rule object, will display it at targetnode
+    var text_node = document.createTextNode("rule goes here");
+    var rule_dd = document.createElement('dd');
+    rule_dd.classList.add('col-sm-9');
+    rule_dd.onclick = function(event) {
+      window.location.href = "/rule/" + rule.rule_id;
+    };
+    targetnode.appendChild(rule_dd);
+  }
+
+  function displayMandate(targetnode, mandate) {
+    //given a mandate object, will display it at targetnode
+    var text_node = document.createTextNode(mandate.type + ": " + mandate.frequency + "x" + mandate.duration + "x" + mandate.group_size);
+    var mandate_node = document.createElement('dt');
+    mandate_node.classList.add("col-sm-3");
+    mandate_node.appendChild(text_node);
+    mandate_node.onclick = function(event) {
+      window.location.href = "/iep/" + mandate.iep_id;
+    };
+    targetnode.appendChild(mandate_node);
+  }
+
   document.addEventListener('DOMContentLoaded', function() {
-
-    //list group
-    var iep_node = document.querySelector('#iepMandates');
-
-    $.getJSON("/iep?student_id={{ data.student_id }}", function(data) {
-      data.forEach(function(mandate) {
-        var mandate_node = document.createElement('div');
-        var text_node = document.createTextNode(mandate.type + ": " + mandate.frequency + "/week for " + mandate.duration + "minutes in a group of " + mandate.group_size);
-        mandate_node.classList.add("list-group-item");
-        mandate_node.appendChild(text_node);
-        iep_node.appendChild(mandate_node);
-
-        //now add rules (if any)
-      });
-    });
-
-    //dl
     var iep_dl = document.querySelector('#iep_dl');
-
+    //add mandates
     $.getJSON("/iep?student_id={{ data.student_id }}", function(data) {
       data.forEach(function(mandate) {
-        var mandate_node = document.createElement('dt');
-        var text_node = document.createTextNode(mandate.type + ": " + mandate.frequency + "/week for " + mandate.duration + "minutes in a group of " + mandate.group_size);
-        mandate_node.classList.add("col-sm-3");
-        mandate_node.appendChild(text_node);
-        iep_dl.appendChild(mandate_node);
+        displayMandate(iep_dl, mandate);
 
-        //now add rules (if any)
+        //now add rules for this mandate (if any)
+        $.getJSON("/rules?mandate_id=" + mandate.iep_id, function(data) {
+          data.forEach(function(rule) {
+            displayRule(iep_dl, rule);
+          });
+        });
 
         //now add "add rule" button
-        var rule_button = document.createElement('button');
-        rule_button.classList.add('btn');
-        rule_button.classList.add('btn-primary');
-        text_node = document.createTextNode('Add Rule');
-        rule_button.appendChild(text_node);
-        //finish - rule not added anywhere
-        //no action added to button
+        addRuleButton(iep_dl, mandate.iep_id);
       });
     });
-
-
-
-
-
-
-    var IEPTableBody = document.querySelector('#IEPMandatesTableBody');
-    var keys = ["type", "frequency", "duration", "group_size"];
-    var tbody = document.querySelector('#IEPMandatesTableBody');
-
-    $.getJSON("/iep?student_id={{ data.student_id }}", function(data) {
-      data.forEach(function(obj, key) {
-        var trow = document.createElement('tr');
-        /*
-        trow.onclick = function(event) {
-          window.location.href = "/student/" + obj.student_id;
-        };
-        */
-
-        tbody.appendChild(trow);
-
-        keys.forEach(function(item, index) {
-          var textnode = document.createTextNode(obj[item]);
-          var tcell = document.createElement('td');
-          tcell.appendChild(textnode);
-          trow.appendChild(tcell);
-        });
-      });
-    });
-
   });
 </script>
 {% endblock %}
