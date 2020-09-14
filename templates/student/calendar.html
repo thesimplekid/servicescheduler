@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block headcontent %}
+<title>testCalendar</title>
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.3.2/main.min.css' rel='stylesheet' />
+{% endblock %}
+
+{% block content %}
+<div class='demo-topbar'></div>
+<div id='calendar'></div>
+{% endblock %}
+
+{% block endcontent %}
+<script src="https://cdn.jsdelivr.net/npm/rrule@2.6.6/dist/es5/rrule.min.js" integrity="sha256-mSqP2DojQRY3omduPpL43IUqFrWUzp1vnr9Yl8AQjHM=" crossorigin="anonymous"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.3.2/main.min.js" integrity="sha256-mMw9aRRFx9TK/L0dn25GKxH/WH7rtFTp+P9Uma+2+zc=" crossorigin="anonymous"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@fullcalendar/rrule@5.3.1/main.global.min.js" integrity="sha256-ddPxUoeEQUxgstje2Cr3wvheC1d2hU64FLY3uZIU6kI=" crossorigin="anonymous"></script>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  var student_id = params.get('student_id');
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      initialDate: '2020-09-07',
+      weekends: true,
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+      },
+      eventClick: function(info) {
+        alert('Clicked: ' + info.event.title);
+      },
+      eventDidMount: function(info) {
+        //hooks for tooltips here - https://fullcalendar.io/docs/event-tooltip-demo
+        //requires tooltip and popper to be loaded
+        /*
+        var tooltip = new Tooltip(info.el, {
+          title: "info.event.extendedProps.description",
+          placement: 'top',
+          trigger: 'hover',
+          container: 'body'
+        });
+        */
+
+      },
+      eventChange: function(info) {
+        alert("change to " + info.event.title + info.event.startStr);
+      },
+      eventDrop: function(info) {
+        //alert(info.event.title + " was dropped on " + info.event.start.toISOString());
+        if (info.event.groupId) {
+          alert("Move entire group, or just " + info.event.title);
+        }
+      },
+      events: "/rules/student?student_id=" + student_id
+    });
+
+    calendar.render();
+  });
+</script>
+{% endblock %}
