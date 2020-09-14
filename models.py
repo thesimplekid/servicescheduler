@@ -172,7 +172,7 @@ def insert_iepmandate(frequency_passed, duration_passed, group_size_passed, type
 
 def insert_rule(location_passed, interval_passed, frequency_passed, start_date_passed, end_date_passed, provider_id_passed, iep_id_passed, student_id_passed, duration_passed):
     new_rule = Rule(location=location_passed, interval=interval_passed, frequency=frequency_passed, start_date=start_date_passed,
-                    end_date=end_date_passed, provider_id=provider_id_passed, iep_id=iep_id_passed, student_id=student_id_passed, duration=duration_passed)
+                    end_date=end_date_passed, monday=True, provider_id=provider_id_passed, iep_id=iep_id_passed, student_id=student_id_passed, duration=duration_passed)
     db.session.add(new_rule)
     db.session.commit()
 
@@ -273,14 +273,15 @@ def rules_for_student_tojson(student_id):
         rrule_dic['until'] = dic['end_date'].strftime("%Y-%m-%d")
         rrule_dic['byweekday'] = day_li
         rrule_dic['interval'] = dic['interval']
-        rrule_dic['frequency'] = dic['frequency']
+        rrule_dic['freq'] = dic['frequency']
 
         extendedProps_dic['location'] = dic['location']
         extendedProps_dic['iep_id'] = dic['iep_id']
         extendedProps_dic['student_id'] = dic['student_id']
 
         event_dic['title'] = get_event_titile(dic['iep_id'])
-        event_dic['duration'] = str(timedelta(minutes=dic['duration']))[:-3]
+        # str(timedelta(minutes=dic['duration']))[:-3]
+        event_dic['duration'] = "00:45"
         event_dic['id'] = dic['rule_id']
         event_dic['rrule'] = rrule_dic
         event_dic['extendedProps'] = extendedProps_dic
@@ -290,7 +291,7 @@ def rules_for_student_tojson(student_id):
     final_dic = {}
     final_dic['events'] = result
     logging.info(final_dic)
-    return (final_dic)
+    return (result)
 
 
 def populate():
