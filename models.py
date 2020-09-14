@@ -237,9 +237,13 @@ def get_iep_for_student(student_id_passed):
 
 
 def get_student_info(student_id_passed):
-    result = []
     student = Student.query.filter_by(student_id=student_id_passed).first()
     return asdict(student)
+
+
+def get_provider_info(provider_id_passed):
+    provider = Provider.query.filter_by(provider_id=provider_id_passed).first()
+    return asdict(provider)
 
 
 def get_rules_for_iep(mandate_id_passed):

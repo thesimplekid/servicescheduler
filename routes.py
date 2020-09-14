@@ -3,7 +3,6 @@ from datetime import datetime
 
 import forms
 import models
-import json
 from flask import Blueprint, jsonify, redirect, render_template, request
 
 routes_for_flask = Blueprint(
@@ -47,7 +46,6 @@ def new_student():
 @routes_for_flask.route('/student/<int:id>')
 def student_info(id):
     data = models.get_student_info(id)
-    logging.info(data)
     return render_template('student/read.html', data=data)
 
 
@@ -72,6 +70,12 @@ def provider_view():
 def provider_json():
     data = models.get_all_providers()
     return jsonify(data)
+
+
+@routes_for_flask.route('/provider/<int:id>')
+def provider_info(id):
+    data = models.get_provider_info(id)
+    return render_template('provider/read.html', data=data)
 
 
 @routes_for_flask.route('/provider/new', methods=['GET', 'POST'])
@@ -137,13 +141,6 @@ def add_rule():
         form.frequency.choices = models.tup_to_choices(models.frequency)
         form.provider.choices = models.provider_choices()
         return render_template('rule/create.html', form=form)
-
-
-@routes_for_flask.route('/rule/move', methods=['POST'])
-def move_rule():
-    logging.info(request.values.get('id'))
-    logging.info(type(request.values.get('start')))
-    logging.info(request.values.get('end'))
 
 
 @routes_for_flask.route('/rules/student')
