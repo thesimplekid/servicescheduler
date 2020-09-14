@@ -16,7 +16,7 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = config.database_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     # Shows sql querys being made if having database issue set to true
-    app.config['SQLALCHEMY_ECHO'] = False
+    app.config['SQLALCHEMY_ECHO'] = True
     app.secret_key = config.secret_key
     models.db.init_app(app)
     return app

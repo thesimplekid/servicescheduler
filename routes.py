@@ -12,7 +12,6 @@ routes_for_flask = Blueprint(
 @ routes_for_flask.route('/')
 def main():
     logging.info('in routes main')
-    logging.info(models.get_iep_by_id(1))
     return render_template('index.html')
 
 
@@ -149,6 +148,17 @@ def rules_for_student():
     result = models.rules_for_student_tojson(student_id)
     string = result
     return jsonify(string)
+
+
+@routes_for_flask.route('/rule/move', methods=['POST'])
+def move_rule():
+    rule_id = request.values.get('id')
+    start_datetime = request.values.get('start')
+    end_date = request.values.get('end')
+    logging.info(start_datetime)
+    logging.info(end_date)
+    models.update_rule(rule_id, start_datetime, end_date)
+    return jsonify('worked')
 
 
 @routes_for_flask.app_errorhandler(404)

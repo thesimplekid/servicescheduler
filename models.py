@@ -215,6 +215,11 @@ def get_iep_by_id(iep_id_passed):
     return iep
 
 
+def get_rule_by_id(rule_id_passed):
+    rule = Rule.query.filter_by(rule_id=rule_id_passed).first()
+    return rule
+
+
 def get_student_id_from_iep(iep_id_passed):
     logging.info(iep_id_passed)
     iep = get_iep_by_id(iep_id_passed)
@@ -270,6 +275,23 @@ def get_event_titile(iep_id):
     group_size = iep.group_size
 
     return type + " " + str(freq) + "x" + str(dur) + "x" + str(group_size)
+
+
+def update_rule(rule_id, start_time, end_day):
+    start_time = start_time.replace(
+        " GMT-0400 (Eastern Daylight Time)", "")[:-3]
+
+    start_datetime = datetime.strptime(start_time, "%a %b %d %Y %H:%M")
+
+    end_day = end_day.replace(
+        " GMT-0400 (Eastern Daylight Time)", "")[:-9]
+    end_date = datetime.strptime(end_day, "%a %b %d %Y")
+
+    rule = get_rule_by_id(rule_id)
+    logging.info(rule)
+    rule.start_date = start_datetime
+    rule.end_date = end_date
+    db.session.commit()
 
 
 def rules_for_student_tojson(student_id):
@@ -330,11 +352,11 @@ def populate():
     insert_iepmandate(5, 65, 2, 'speech', 1)
     insert_iepmandate(2, 45, 1, 'PT', 2)
 
-    insert_rule('in-person', 2, 'weekly', datetime(2020, 5, 17, 10,
+    insert_rule('in-person', 2, 'weekly', datetime(2020, 5, 17, 8,
                                                    15), datetime(2020, 6, 17, 10, 30), 1, 1, 1, 45, True, True, False, False, False)
 
     insert_rule('teletheraphy', 1, 'daily', datetime(
-        2020, 6, 18, 11, 00), datetime(2020, 7, 17), 2, 2, 2, 45, True, False, False, True, False)
+        2020, 6, 18, 13, 00), datetime(2020, 7, 17), 2, 2, 2, 45, True, False, False, True, False)
 
 
 '''
