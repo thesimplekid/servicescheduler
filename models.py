@@ -282,6 +282,13 @@ def get_rules_for_provider(provider_id):
     return result
 
 
+def get_rules_by_type(type_passed):
+    result = []
+    rules = Rule.query.filter(Rule.ieps.has(type=type_passed)).all()
+    [result.append(asdict(row)) for row in rules]
+    return result
+
+
 def get_event_titile(iep_id):
     result = []
     iep = get_iep_by_id(iep_id)
@@ -369,6 +376,11 @@ def rules_for_provider_to_json(provider_id):
     li_dics = get_rules_for_provider(provider_id)
 
     return rules_to_json(li_dics)
+
+
+def rules_by_type_to_json(type_passed):
+    li_dic = get_rules_by_type(type_passed)
+    return rules_to_json(li_dic)
 
 
 def populate():

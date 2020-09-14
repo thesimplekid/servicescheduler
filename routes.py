@@ -12,6 +12,7 @@ routes_for_flask = Blueprint(
 @ routes_for_flask.route('/')
 def main():
     logging.info('in routes main')
+    models.get_rules_by_type('speech')
     return render_template('index.html')
 
 
@@ -151,6 +152,13 @@ def rules_for_student():
 def rules_for_provider():
     provider_id = request.args.get('provider_id')
     result = models.rules_for_provider_to_json(provider_id)
+    return jsonify(result)
+
+
+@routes_for_flask.route('/rule/type')
+def rules_by_type():
+    type = request.args.get('type')
+    result = models.rules_by_type_to_json(type)
     return jsonify(result)
 
 
