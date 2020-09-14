@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block headcontent %}
+<title>New Student</title>
+{% endblock %}
+
+{% block content %}
+<form method=post action="" enctype="multipart/form-data">
+  <fieldset>
+    <legend>Add a New Rule</legend>
+    {{form.csrf_token}}
+
+    {{form.iep_id}}
+    {{form.student_id}}
+
+
+    {{form.location.label}}<br>
+    {{form.location}}
+    <br>
+
+    {{form.frequency.label}}<br>
+    {{form.frequency}}
+    <br>
+
+    {{form.interval.label}}<br>
+    {{form.interval}}
+    <br>
+
+    {{form.start_date.label}}<br>
+    {{form.start_date}}
+    <br>
+
+    {{ form.start_time.label }}<br>
+    {{ form.start_time }}
+    <br>
+
+    {{ form.end_date.label }}<br>
+    {{ form.end_date }}
+    <br>
+
+    {{form.duration.label}}
+    {{form.duration}}
+    <br>
+
+    {{form.provider.label}}<br>
+    {{form.provider}}
+    <br>
+
+    {{form.days.label}}<br>
+    {{form.days}}
+    <br>
+
+    {{form.submit}}
+
+
+  </fieldset>
+
+</form>
+{% endblock %}
+
+{% block endcontent %}
+{% endblock %}

@@ -11,7 +11,11 @@
 {% endblock %}
 
 {% block endcontent %}
-<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.3.2/main.min.js'></script>
+<script src="https://cdn.jsdelivr.net/npm/rrule@2.6.6/dist/es5/rrule.min.js" integrity="sha256-mSqP2DojQRY3omduPpL43IUqFrWUzp1vnr9Yl8AQjHM=" crossorigin="anonymous"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.3.2/main.min.js" integrity="sha256-mMw9aRRFx9TK/L0dn25GKxH/WH7rtFTp+P9Uma+2+zc=" crossorigin="anonymous"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@fullcalendar/rrule@5.3.1/main.global.min.js" integrity="sha256-ddPxUoeEQUxgstje2Cr3wvheC1d2hU64FLY3uZIU6kI=" crossorigin="anonymous"></script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
@@ -43,7 +47,7 @@
 
       },
       eventChange: function(info) {
-        alert("change to " + info.event.title);
+        alert("change to " + info.event.title + info.event.startStr);
       },
       eventDrop: function(info) {
         //alert(info.event.title + " was dropped on " + info.event.start.toISOString());
@@ -57,7 +61,10 @@
           title: 'Ruth',
           start: '2020-09-14T06:00:00',
           borderColor: 'red',
-          backgroundColor: 'red'
+          backgroundColor: 'red',
+          extendedProps: {
+            booty: "wooty"
+          }
         },
         {
           id: '0002',
@@ -89,6 +96,18 @@
           startRecur: 'today',
           startTime: '10:00:00',
           daysOfWeek: [2, 4]
+        },
+        {
+          title: 'my recurring event',
+          id: '0006',
+          duration: '00:45',
+          rrule: {
+            freq: 'weekly',
+            interval: 2,
+            byweekday: ['mo', 'fr'],
+            dtstart: '2020-09-13T10:30:00', // will also accept '20120201T103000'
+            until: '2022-06-01' // will also accept '20120201'
+          }
         },
         {
           title: 'Birthday Party',
