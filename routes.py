@@ -3,6 +3,7 @@ from datetime import datetime
 
 import forms
 import models
+import json
 from flask import Blueprint, jsonify, redirect, render_template, request
 
 routes_for_flask = Blueprint(
@@ -136,6 +137,13 @@ def add_rule():
         form.frequency.choices = models.tup_to_choices(models.frequency)
         form.provider.choices = models.provider_choices()
         return render_template('rule/create.html', form=form)
+
+
+@routes_for_flask.route('/rule/move', methods=['POST'])
+def move_rule():
+    logging.info(request.values.get('id'))
+    logging.info(type(request.values.get('start')))
+    logging.info(request.values.get('end'))
 
 
 @routes_for_flask.route('/rules/student')
