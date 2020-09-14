@@ -26,6 +26,11 @@
     return colors[mod];
   }
 
+  const datesAreOnSameDay = (first, second) =>
+    first.getFullYear() === second.getFullYear() &&
+    first.getMonth() === second.getMonth() &&
+    first.getDate() === second.getDate();
+
   function moveEvent(info) {
     //given the new location of an event, submit to database_url
     alert(info.event.start.toString());
@@ -34,6 +39,11 @@
       start: info.event.start,
       end: info.event.end
     };
+    if (info.event.newDayOfWeek) {
+      alert("new day of week");
+      data.new
+    }
+
     $.post("/rule/move", data)
       .done(function() {
         alert("success: event moved");
@@ -66,7 +76,7 @@
   var calendarEl = document.getElementById('calendar');
 
   var calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth',
+    initialView: 'dayGridWeek',
     weekends: false,
     headerToolbar: {
       left: 'prev,next today',
@@ -91,13 +101,21 @@
     eventChange: function(info) {
       //alert("change to " + info.event.title + info.event.startStr);
       //alert(JSON.stringify(info));
-      moveEvent(info);
+      //check to see if we are moving across days
+      if (datesAreOnSameDay(info.event.start, info.oldEvent.start)) {
+        //same day, so can move
+        // alert("same day");
+        moveEvent(info);
+      } else {
+        //in future, we are going to calculate the day it was moved to
+        info.event.newDayOfWeek = info.event.start.getDay();
+        alert("at this point we can't move events across days - change rule document");
+      }
+
     },
     eventDrop: function(info) {
       //alert(info.event.title + " was dropped on " + info.event.start.toISOString());
-      if (info.event.groupId) {
-        alert("Move entire group, or just " + info.event.title);
-      }
+
     },
     //events: "/rules/student?student_id=" + student_id
     /*

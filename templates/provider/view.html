@@ -35,7 +35,7 @@
       data.forEach(function(obj, key) {
         var trow = document.createElement('tr');
         trow.onclick = function(event) {
-          window.location.href = "/provider/" + obj.student_id;
+          window.location.href = "/provider/" + obj.provider_id;
         };
 
         tbody.appendChild(trow);

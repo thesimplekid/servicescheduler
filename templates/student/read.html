@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block headcontent %}
-<title>Student</title>
+<title>Student: {{ data.first_name }} {{ data.last_name }}</title>
 {% endblock %}
 
 {% block content %}
@@ -26,13 +26,54 @@
 <h3>IEP Mandates</h3>
 <ul class="list-group" id="iep_ul"></ul>
 
+<button type="button" class="btn btn-primary" onclick="window.location.href='/mandate/new?student_id={{ data.student_id }}';">
+  Add Mandate
+</button>
+
 {% endblock %}
 
 {% block endcontent %}
 <script>
+  function ordinal(d) {
+    var i = parseInt(d, 10);
+    if (i > 3 && i < 21) return 'th';
+    switch (i % 10) {
+      case 1:
+        return "st";
+      case 2:
+        return "nd";
+      case 3:
+        return "rd";
+      default:
+        return "th";
+    }
+  }
+
   function displayRule(targetnode, rule) {
     //given a rule object, will display it at targetnode
-    var text_node = document.createTextNode(rule.location + " and other crap");
+    var intervalText = "";
+    if (rule.interval == "1") {
+      intervalText = "every week";
+    } else {
+      intervalText = "every " + rule.interval + ordinal(rule.interval) + " week";
+    }
+    var daysofweek = [];
+    if (rule.monday) {
+      daysofweek.push("M")
+    }
+    if (rule.tuesday) {
+      daysofweek.push("Tu")
+    }
+    if (rule.wednesday) {
+      daysofweek.push("W")
+    }
+    if (rule.thursday) {
+      daysofweek.push("Th")
+    }
+    if (rule.friday) {
+      daysofweek.push("F")
+    }
+    var text_node = document.createTextNode(rule.location + " " + daysofweek.join() + " " + intervalText + " for " + rule.duration + " min. by " + rule.provider_id);
     var li_node = document.createElement('li');
     var a_node = document.createElement('a');
     a_node.href = "/rule/" + rule.rule_id;

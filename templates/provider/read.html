@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block headcontent %}
+<title>Provider: {{ data.first_name }} {{ data.last_name }}</title>
+{% endblock %}
+
+{% block content %}
+<dl class="row">
+  <dt class="col-sm-3">Name<dt>
+  <dd class="col-sm-9">{{ data.first_name }} {{ data.last_name }}</dd>
+</dl>
+
+<button type="button" class="btn btn-primary" onclick="window.location.href='/testcalendar?calendarTitle={{ data.first_name }}%20{{ data.last_name}}&provider_id={{ data.provider_id }}';">
+  Calendar View
+</button>
+
+<h3>Students</h3>
+<ul class="list-group" id="students_ul"></ul>
+
+{% endblock %}
+
+
+{% block endcontent %}
+<script>
+  function displayRule(targetnode, rule) {
+    //given a rule object, will display it at targetnode
+    var text_node = document.createTextNode(rule.location + " and other crap");
+    var li_node = document.createElement('li');
+    var a_node = document.createElement('a');
+    a_node.href = "/rule/" + rule.rule_id;
+    a_node.appendChild(text_node);
+    li_node.appendChild(a_node);
+    targetnode.appendChild(li_node);
+  }
+
+  function displayStudent(targetnode, student) {
+    //add list group heading (with iep mandate)
+    var node = document.createElement('div');
+    node.classList.add('d-flex', 'w-100', 'justify-content-between');
+    var text_node = document.createTextNode(mandate.type + ": " + mandate.frequency + "x" + mandate.duration + "x" + mandate.group_size);
+    var a_node = document.createElement('a');
+    a_node.href = "/mandate/" + mandate.iep_id;
+    a_node.appendChild(text_node);
+    var listGroupHeading = document.createElement('h5');
+    listGroupHeading.classList.add("db-1");
+    listGroupHeading.appendChild(a_node);
+    node.appendChild(listGroupHeading);
+
+    //add the rule_button
+    var rule_button = document.createElement('button');
+    var text_node = document.createTextNode('Add Rule');
+    rule_button.classList.add('btn', 'btn-primary');
+    rule_button.setAttribute('type', 'button');
+    rule_button.appendChild(text_node);
+    rule_button.onclick = function(event) {
+      window.location.href = "/rule/new?iep_id=" + mandate.iep_id;
+    };
+    node.appendChild(rule_button);
+
+    targetnode.appendChild(node);
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+  var students_ul = document.querySelector('#students_ul');
+  //add mandates
+  $.getJSON("/students?provider_id={{ data.provider_id }}", function(data) {
+    data.forEach(function(student) {
+      //create new li text_node
+      var student_li = document.createElement('li');
+      student_li.classList.add("list-group-item");
+
+      //add top half of listgroup (iep and button)
+      displayStudent(student_li, student);
+      //put li element into ul
+      students_ul.appendChild(student_li);
+
+      /*
+      //need to rethink - should show student, iep mandate (that match provider type, and rules for that mandate)
+              //now add rules for this student (if any)
+              var rule_ul = document.createElement('ul');
+              student_li.appendChild(rule_ul);
+
+              $.getJSON("/rules?student_id=" + student.student_id, function(data) {
+                data.forEach(function(rule) {
+                  displayRule(rule_ul, rule);
+                });
+
+        */
+    });
+  });
+  });
+  });
+</script>
+{% endblock %}
