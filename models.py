@@ -141,6 +141,20 @@ class Session(db.Model):
 '''
 
 
+def tup_to_choices(tup_name):
+    result = []
+    [result.append((i, i)) for i in tup_name]
+    return result
+
+
+def provider_choices():
+    result = []
+    all = Provider.query.with_entities(
+        Provider.provider_id, Provider.first_name, Provider.last_name).all()
+    [result.append((i[0], i[1] + " " + i[2])) for i in all]
+    return result
+
+
 def insert_student(osis_number_passed, first_name_passed, last_name_passed, grade_passed, schoolDBN_passed):
     if(db.session.query(Student.osis_number).filter_by(osis_number=osis_number_passed).scalar() is None):
 
@@ -170,9 +184,9 @@ def insert_iepmandate(frequency_passed, duration_passed, group_size_passed, type
     db.session.commit()
 
 
-def insert_rule(location_passed, interval_passed, frequency_passed, start_date_passed, end_date_passed, provider_id_passed, iep_id_passed, student_id_passed, duration_passed):
+def insert_rule(location_passed, interval_passed, frequency_passed, start_date_passed, end_date_passed, provider_id_passed, iep_id_passed, student_id_passed, duration_passed, monday_passed, tuesday_passed, wednesday_passed, thursday_passed, friday_passed):
     new_rule = Rule(location=location_passed, interval=interval_passed, frequency=frequency_passed, start_date=start_date_passed,
-                    end_date=end_date_passed, monday=True, provider_id=provider_id_passed, iep_id=iep_id_passed, student_id=student_id_passed, duration=duration_passed)
+                    end_date=end_date_passed, provider_id=provider_id_passed, iep_id=iep_id_passed, student_id=student_id_passed, duration=duration_passed, monday=monday_passed, tuesday=tuesday_passed, wednesday=wednesday_passed, thursday=thursday_passed, friday=friday_passed)
     db.session.add(new_rule)
     db.session.commit()
 
@@ -199,6 +213,13 @@ def get_student_by_id(student_id_passed):
 def get_iep_by_id(iep_id_passed):
     iep = Iepmandate.query.filter_by(iep_id=iep_id_passed).first()
     return iep
+
+
+def get_student_id_from_iep(iep_id_passed):
+    logging.info(iep_id_passed)
+    iep = get_iep_by_id(iep_id_passed)
+    logging.info(iep)
+    return iep.student_id
 
 
 def get_all_providers():
@@ -285,6 +306,7 @@ def rules_for_student_tojson(student_id):
         duration = datetime.strptime(
             duration_string, "%H:%M").strftime('%H:%M')
         event_dic['duration'] = duration
+        event_dic['editable'] = True
 
         event_dic['id'] = dic['rule_id']
         event_dic['rrule'] = rrule_dic
@@ -305,10 +327,10 @@ def populate():
     insert_iepmandate(2, 45, 1, 'PT', 2)
 
     insert_rule('in-person', 2, 'weekly', datetime(2020, 5, 17, 10,
-                                                   15), datetime(2020, 6, 17, 10, 30), 1, 1, 1, 45)
+                                                   15), datetime(2020, 6, 17, 10, 30), 1, 1, 1, 45, True, True, False, False, False)
 
     insert_rule('teletheraphy', 1, 'daily', datetime(
-        2020, 6, 18, 11, 00), datetime(2020, 7, 17), 2, 2, 2, 45)
+        2020, 6, 18, 11, 00), datetime(2020, 7, 17), 2, 2, 2, 45, True, False, False, True, False)
 
 
 '''
