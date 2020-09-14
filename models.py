@@ -280,17 +280,17 @@ def rules_for_student_tojson(student_id):
         extendedProps_dic['student_id'] = dic['student_id']
 
         event_dic['title'] = get_event_titile(dic['iep_id'])
-        # str(timedelta(minutes=dic['duration']))[:-3]
-        event_dic['duration'] = "00:45"
+
+        duration_string = str(timedelta(minutes=dic['duration']))[:-3]
+        duration = datetime.strptime(
+            duration_string, "%H:%M").strftime('%H:%M')
+        event_dic['duration'] = duration
+
         event_dic['id'] = dic['rule_id']
         event_dic['rrule'] = rrule_dic
         event_dic['extendedProps'] = extendedProps_dic
 
         result.append(event_dic)
-
-    final_dic = {}
-    final_dic['events'] = result
-    logging.info(final_dic)
     return (result)
 
 
