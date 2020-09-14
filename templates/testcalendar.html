@@ -6,121 +6,95 @@
 {% endblock %}
 
 {% block content %}
+<h1 class="text-center" id="calendarTitle"></h1>
 <div class='demo-topbar'></div>
 <div id='calendar'></div>
 {% endblock %}
 
 {% block endcontent %}
 <script src="https://cdn.jsdelivr.net/npm/rrule@2.6.6/dist/es5/rrule.min.js" integrity="sha256-mSqP2DojQRY3omduPpL43IUqFrWUzp1vnr9Yl8AQjHM=" crossorigin="anonymous"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.3.2/main.min.js" integrity="sha256-mMw9aRRFx9TK/L0dn25GKxH/WH7rtFTp+P9Uma+2+zc=" crossorigin="anonymous"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/rrule@5.3.1/main.global.min.js" integrity="sha256-ddPxUoeEQUxgstje2Cr3wvheC1d2hU64FLY3uZIU6kI=" crossorigin="anonymous"></script>
 
 <script>
+  function getColor(i) {
+    //given a number, will return a color - cycling through an array of colors
+    //we use the modulo operator so we will cycle through colors
+    //colors taken from bootswatch cerulean theme
+    const colors = ['rgb(46,163,230)', 'rgb(96,141,48)', 'rgb(2,42,81)', 'rgb(167,23,28)', 'rgb(187,73,0)', 'rgb(244,210,211)'];
+    var mod = i % colors.length;
+    return colors[mod];
+  }
+
+  const params = new URLSearchParams(window.location.search);
+
+  //add title to calendar
+  var calendarTitle = params.get('calendarTitle');
+  if (calendarTitle) {
+    var calendarTitleNode = document.getElementById("calendarTitle");
+    var textNode = document.createTextNode(calendarTitle);
+    calendarTitleNode.appendChild(textNode);
+  }
+
+  //build eventSources
+  var student_id = params.get('student_id');
+  var student_id_array = params.getAll('student_id');
+  var eventSources = student_id_array.map((str, index) =>
+    ({
+      url: '/rules/student?student_id=' + str,
+      color: getColor(index)
+    }));
+
+  var calendarEl = document.getElementById('calendar');
+
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    weekends: false,
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay'
+    },
+    eventClick: function(info) {
+      alert('Clicked: ' + info.event.title);
+    },
+    eventDidMount: function(info) {
+      //hooks for tooltips here - https://fullcalendar.io/docs/event-tooltip-demo
+      //requires tooltip and popper to be loaded
+      /*
+      var tooltip = new Tooltip(info.el, {
+        title: "info.event.extendedProps.description",
+        placement: 'top',
+        trigger: 'hover',
+        container: 'body'
+      });
+      */
+    },
+    eventChange: function(info) {
+      alert("change to " + info.event.title + info.event.startStr);
+    },
+    eventDrop: function(info) {
+      //alert(info.event.title + " was dropped on " + info.event.start.toISOString());
+      if (info.event.groupId) {
+        alert("Move entire group, or just " + info.event.title);
+      }
+    },
+    //events: "/rules/student?student_id=" + student_id
+    /*
+    eventSources: [{
+        url: '/rules/student?student_id=' + 1,
+        color: 'rgb(46,163,230)'
+      },
+      {
+        url: '/rules/student?student_id=' + 2,
+        color: 'rgb(96,141,48)'
+      }
+    ]
+    */
+    eventSources: eventSources
+  });
+
   document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('calendar');
-
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: 'dayGridMonth',
-      initialDate: '2020-09-07',
-      weekends: false,
-      headerToolbar: {
-        left: 'prev,next today',
-        center: 'title',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay'
-      },
-      eventClick: function(info) {
-        alert('Clicked: ' + info.event.title);
-      },
-      eventDidMount: function(info) {
-        //hooks for tooltips here - https://fullcalendar.io/docs/event-tooltip-demo
-        //requires tooltip and popper to be loaded
-        /*
-        var tooltip = new Tooltip(info.el, {
-          title: "info.event.extendedProps.description",
-          placement: 'top',
-          trigger: 'hover',
-          container: 'body'
-        });
-        */
-
-      },
-      eventChange: function(info) {
-        alert("change to " + info.event.title + info.event.startStr);
-      },
-      eventDrop: function(info) {
-        //alert(info.event.title + " was dropped on " + info.event.start.toISOString());
-        if (info.event.groupId) {
-          alert("Move entire group, or just " + info.event.title);
-        }
-      },
-      events: [{
-          id: '0001',
-          editable: true,
-          title: 'Ruth',
-          start: '2020-09-14T06:00:00',
-          borderColor: 'red',
-          backgroundColor: 'red',
-          extendedProps: {
-            booty: "wooty"
-          }
-        },
-        {
-          id: '0002',
-          editable: true,
-          title: 'Nelson',
-          start: '2020-09-14T07:00:00'
-        },
-        {
-          id: '0003',
-          groupId: '0001',
-          editable: true,
-          title: 'Barney',
-          start: '2020-09-14T08:00:00',
-          end: '2020-09-14T09:00:00'
-        },
-        {
-          id: '0004',
-          groupId: '0001',
-          editable: true,
-          title: 'Fred',
-          start: '2020-09-14T08:00:00',
-          end: '2020-09-14T09:00:00'
-        },
-        {
-          id: '0005',
-          groupId: '0002',
-          editable: true,
-          title: 'Billy',
-          startRecur: 'today',
-          startTime: '10:00:00',
-          daysOfWeek: [2, 4]
-        },
-        {
-          title: 'my recurring event',
-          id: '0006',
-          duration: '00:45',
-          rrule: {
-            freq: 'weekly',
-            interval: 2,
-            byweekday: ['mo', 'fr'],
-            dtstart: '2020-09-13T10:30:00', // will also accept '20120201T103000'
-            until: '2022-06-01' // will also accept '20120201'
-          }
-        },
-        {
-          title: 'Birthday Party',
-          start: '2020-09-13T07:00:00'
-        },
-        {
-          title: 'Click for Google',
-          url: 'http://google.com/',
-          start: '2020-09-28'
-        }
-      ]
-    });
-
     calendar.render();
   });
 </script>

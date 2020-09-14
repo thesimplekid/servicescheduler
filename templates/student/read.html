@@ -19,69 +19,78 @@
   <dd class="col-sm-9">{{ data.osis_number }}</dd>
 </dl>
 
+<button type="button" class="btn btn-primary" onclick="window.location.href='/testcalendar?calendarTitle={{ data.first_name }}%20{{ data.last_name}}&student_id={{ data.student_id }}';">
+  Calendar View
+</button>
+
 <h3>IEP Mandates</h3>
-<dl class="row" id="iep_dl"></dl>
+<ul class="list-group" id="iep_ul"></ul>
 
 {% endblock %}
 
 {% block endcontent %}
 <script>
-  function addRuleButton(targetnode, iep_id) {
-    //given an iep_id, will add a button to it at targetnode
-    var rule_dd = document.createElement('dd');
-    rule_dd.classList.add('col-sm-9');
-    var rule_button = document.createElement('button');
-    var text_node = document.createTextNode('Add Rule');
-    rule_button.classList.add('btn');
-    rule_button.classList.add('btn-primary');
-    rule_button.setAttribute('type', 'button');
-    rule_button.appendChild(text_node);
-    rule_button.onclick = function(event) {
-      window.location.href = "/rule/new?iep=" + iep_id;
-    };
-    rule_dd.appendChild(rule_button);
-    targetnode.appendChild(rule_dd);
-  }
-
   function displayRule(targetnode, rule) {
     //given a rule object, will display it at targetnode
-    var text_node = document.createTextNode("rule goes here");
-    var rule_dd = document.createElement('dd');
-    rule_dd.classList.add('col-sm-9');
-    rule_dd.onclick = function(event) {
-      window.location.href = "/rule/" + rule.rule_id;
-    };
-    targetnode.appendChild(rule_dd);
+    var text_node = document.createTextNode(rule.location + " and other crap");
+    var li_node = document.createElement('li');
+    var a_node = document.createElement('a');
+    a_node.href = "/rule/" + rule.rule_id;
+    a_node.appendChild(text_node);
+    li_node.appendChild(a_node);
+    targetnode.appendChild(li_node);
   }
 
   function displayMandate(targetnode, mandate) {
-    //given a mandate object, will display it at targetnode
+    //add list group heading (with iep mandate)
+    var node = document.createElement('div');
+    node.classList.add('d-flex', 'w-100', 'justify-content-between');
     var text_node = document.createTextNode(mandate.type + ": " + mandate.frequency + "x" + mandate.duration + "x" + mandate.group_size);
-    var mandate_node = document.createElement('dt');
-    mandate_node.classList.add("col-sm-3");
-    mandate_node.appendChild(text_node);
-    mandate_node.onclick = function(event) {
-      window.location.href = "/iep/" + mandate.iep_id;
+    var a_node = document.createElement('a');
+    a_node.href = "/mandate/" + mandate.iep_id;
+    a_node.appendChild(text_node);
+    var listGroupHeading = document.createElement('h5');
+    listGroupHeading.classList.add("db-1");
+    listGroupHeading.appendChild(a_node);
+    node.appendChild(listGroupHeading);
+
+    //add the rule_button
+    var rule_button = document.createElement('button');
+    var text_node = document.createTextNode('Add Rule');
+    rule_button.classList.add('btn', 'btn-primary');
+    rule_button.setAttribute('type', 'button');
+    rule_button.appendChild(text_node);
+    rule_button.onclick = function(event) {
+      window.location.href = "/rule/new?iep_id=" + mandate.iep_id;
     };
-    targetnode.appendChild(mandate_node);
+    node.appendChild(rule_button);
+
+    targetnode.appendChild(node);
   }
 
   document.addEventListener('DOMContentLoaded', function() {
-    var iep_dl = document.querySelector('#iep_dl');
+    var iep_ul = document.querySelector('#iep_ul');
     //add mandates
     $.getJSON("/iep?student_id={{ data.student_id }}", function(data) {
       data.forEach(function(mandate) {
-        displayMandate(iep_dl, mandate);
+        //create new li text_node
+        var iep_li = document.createElement('li');
+        iep_li.classList.add("list-group-item");
+
+        //add top half of listgroup (iep and button)
+        displayMandate(iep_li, mandate);
+        //put li element into ul
+        iep_ul.appendChild(iep_li);
 
         //now add rules for this mandate (if any)
+        var rule_ul = document.createElement('ul');
+        iep_li.appendChild(rule_ul);
+
         $.getJSON("/rules?mandate_id=" + mandate.iep_id, function(data) {
           data.forEach(function(rule) {
-            displayRule(iep_dl, rule);
+            displayRule(rule_ul, rule);
           });
         });
-
-        //now add "add rule" button
-        addRuleButton(iep_dl, mandate.iep_id);
       });
     });
   });
