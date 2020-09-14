@@ -223,6 +223,11 @@ def get_rule_by_id(rule_id_passed):
     return rule
 
 
+def get_provider_by_id(provider_id_passed):
+    provider = Provider.query.filter_by(provider_id=provider_id_passed).first()
+    return provider
+
+
 def get_student_id_from_iep(iep_id_passed):
     logging.info(iep_id_passed)
     iep = get_iep_by_id(iep_id_passed)
