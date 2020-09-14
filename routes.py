@@ -12,7 +12,7 @@ routes_for_flask = Blueprint(
 @ routes_for_flask.route('/')
 def main():
     logging.info('in routes main')
-    logging.info(models.get_iep_by_id(1))
+    models.get_rules_by_type('speech')
     return render_template('index.html')
 
 
@@ -46,7 +46,6 @@ def new_student():
 @routes_for_flask.route('/student/<int:id>')
 def student_info(id):
     data = models.get_student_info(id)
-    logging.info(data)
     return render_template('student/read.html', data=data)
 
 
@@ -73,19 +72,23 @@ def provider_json():
     return jsonify(data)
 
 
+@routes_for_flask.route('/provider/<int:id>')
+def provider_info(id):
+    data = models.get_provider_info(id)
+    return render_template('provider/read.html', data=data)
+
+
 @routes_for_flask.route('/provider/new', methods=['GET', 'POST'])
 def new_provider():
     form = forms.add_provider()
 
     if request.method == 'POST':
-        if form.validate() == False:
-            return render_template('provider/create.html', form=form)
-        else:
-            models.insert_provider(
-                form.provider_ref_id.data, form.first_name.data, form.last_name.data)
-            return redirect('/providers')
+        models.insert_provider(
+            form.provider_ref_id.data, form.first_name.data, form.last_name.data, form.provider_type.data)
+        return redirect('/providers')
 
     else:
+        form.provider_type.choices = models.tup_to_choices(models.types)
         return render_template('provider/create.html', form=form)
 
 
@@ -141,9 +144,33 @@ def add_rule():
 @routes_for_flask.route('/rules/student')
 def rules_for_student():
     student_id = request.args.get('student_id')
-    result = models.rules_for_student_tojson(student_id)
-    string = result
-    return jsonify(string)
+    result = models.rules_for_student_to_json(student_id)
+    return jsonify(result)
+
+
+@routes_for_flask.route('/rule/provider')
+def rules_for_provider():
+    provider_id = request.args.get('provider_id')
+    result = models.rules_for_provider_to_json(provider_id)
+    return jsonify(result)
+
+
+@routes_for_flask.route('/rule/type')
+def rules_by_type():
+    type = request.args.get('type')
+    result = models.rules_by_type_to_json(type)
+    return jsonify(result)
+
+
+@routes_for_flask.route('/rule/move', methods=['POST'])
+def move_rule():
+    rule_id = request.values.get('id')
+    start_datetime = request.values.get('start')
+    end_date = request.values.get('end')
+    logging.info(start_datetime)
+    logging.info(end_date)
+    models.update_rule(rule_id, start_datetime, end_date)
+    return jsonify('worked')
 
 
 @routes_for_flask.app_errorhandler(404)

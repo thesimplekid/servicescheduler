@@ -18,6 +18,7 @@ class add_provider(FlaskForm):
     provider_ref_id = StringField('Enter ref id', [validators.Required()])
     first_name = StringField('Enter first name', [validators.Required()])
     last_name = StringField('Enter last name', [validators.Required()])
+    provider_type = SelectField('Select a Provider type')
     submit = SubmitField('Submit')
 
 
@@ -33,7 +34,7 @@ class add_rule(FlaskForm):
     frequency = SelectField('Enter a frequency(string)')
     interval = IntegerField('Enter a Interval (int)')
     start_date = DateField('Enter start date', [validators.Required()])
-    start_time = StringField('Enter start feild (str 00:00)')
+    start_time = StringField('Enter start field (str 00:00)')
     end_date = DateField('Enter end date', [validators.Required()])
     duration = IntegerField('Enter duration')
     provider = SelectField('Select a Provider')

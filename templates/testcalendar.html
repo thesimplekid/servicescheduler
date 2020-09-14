@@ -26,6 +26,24 @@
     return colors[mod];
   }
 
+  function moveEvent(info) {
+    //given the new location of an event, submit to database_url
+    alert(info.event.start.toString());
+    var data = {
+      id: info.event.id,
+      start: info.event.start,
+      end: info.event.end
+    };
+    $.post("/rule/move", data)
+      .done(function() {
+        alert("success: event moved");
+      })
+      .fail(function() {
+        //perhaps move event back to old position using info.oldEvent
+        alert("error: unable to move event");
+      });
+  }
+
   const params = new URLSearchParams(window.location.search);
 
   //add title to calendar
@@ -37,7 +55,7 @@
   }
 
   //build eventSources
-  var student_id = params.get('student_id');
+  //expand so we can do provider_id, type, ...
   var student_id_array = params.getAll('student_id');
   var eventSources = student_id_array.map((str, index) =>
     ({
@@ -71,7 +89,9 @@
       */
     },
     eventChange: function(info) {
-      alert("change to " + info.event.title + info.event.startStr);
+      //alert("change to " + info.event.title + info.event.startStr);
+      //alert(JSON.stringify(info));
+      moveEvent(info);
     },
     eventDrop: function(info) {
       //alert(info.event.title + " was dropped on " + info.event.start.toISOString());
