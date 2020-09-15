@@ -8,7 +8,6 @@ services:
     restart: always
     expose:
       - 8080
-    volumes:
     depends_on:
       - mysql
 
