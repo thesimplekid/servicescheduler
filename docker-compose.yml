@@ -1,9 +1,9 @@
-version: "3.8"
+version: "3.3"
 
 services:
 
   flask:
-    build: thesimplekid/service:flask
+    image: thesimplekid/service:flask
     container_name: flask
     restart: always
     expose:

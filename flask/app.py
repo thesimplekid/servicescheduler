@@ -1,6 +1,6 @@
 import logging
 
-import config
+#import config
 import models
 from flask import Flask
 from routes import routes_for_flask
