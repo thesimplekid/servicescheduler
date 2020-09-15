@@ -289,7 +289,12 @@ def get_rules_by_type(type_passed):
     return result
 
 
-def get_event_titile(iep_id):
+def get_event_titile(student_id):
+    student = get_student_by_id(student_id)
+    return student.first_name + " " + student.last_name
+
+
+'''
     result = []
     iep = get_iep_by_id(iep_id)
     type = iep.type
@@ -298,6 +303,7 @@ def get_event_titile(iep_id):
     group_size = iep.group_size
 
     return type + " " + str(freq) + "x" + str(dur) + "x" + str(group_size)
+    '''
 
 
 def update_rule(rule_id, start_time, end_day):
@@ -349,7 +355,7 @@ def rules_to_json(li_dics):
         extendedProps_dic['iep_id'] = dic['iep_id']
         extendedProps_dic['student_id'] = dic['student_id']
 
-        event_dic['title'] = get_event_titile(dic['iep_id'])
+        event_dic['title'] = get_event_titile(dic['student_id'])
 
         duration_string = str(timedelta(minutes=dic['duration']))[:-3]
         duration = datetime.strptime(

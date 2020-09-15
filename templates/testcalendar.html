@@ -33,15 +33,15 @@
 
   function moveEvent(info) {
     //given the new location of an event, submit to database_url
-    alert(info.event.start.toString());
     var data = {
       id: info.event.id,
       start: info.event.start,
       end: info.event.end
     };
+    //if we moved the event to a new day, we need to do more
     if (info.event.newDayOfWeek) {
-      alert("new day of week");
-      data.new
+      data.newDayOfWeek = info.event.newDayOfWeek;
+      data.oldDayOfWeek = info.oldEvent.oldDayOfWeek;
     }
 
     $.post("/rule/move", data)
@@ -66,17 +66,35 @@
 
   //build eventSources
   //expand so we can do provider_id, type, ...
-  var student_id_array = params.getAll('student_id');
-  var eventSources = student_id_array.map((str, index) =>
-    ({
-      url: '/rules/student?student_id=' + str,
-      color: getColor(index)
-    }));
+  var eventSources = [];
+  if (params.get('student_id')) {
+    var student_id_array = params.getAll('student_id');
+    eventSources = student_id_array.map((str, index) =>
+      ({
+        url: '/rules/student?student_id=' + str,
+        color: getColor(index)
+      }));
+  } else if (params.get('provider_id')) {
+    var provider_id_array = params.getAll('provider_id');
+    eventSources = provider_id_array.map((str, index) =>
+      ({
+        url: '/rules/provider?provider_id=' + str,
+        color: getColor(index)
+      }));
+  } else if (params.get('provider_type')) {
+    var provider_type_array = params.getAll('provider_type');
+    eventSources = provider_type_array.map((str, index) =>
+      ({
+        url: '/rules/type?provider_type=' + str,
+        color: getColor(index)
+      }));
+  }
+
 
   var calendarEl = document.getElementById('calendar');
 
   var calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridWeek',
+    initialView: 'dayGridMonth',
     weekends: false,
     headerToolbar: {
       left: 'prev,next today',
@@ -109,6 +127,7 @@
       } else {
         //in future, we are going to calculate the day it was moved to
         info.event.newDayOfWeek = info.event.start.getDay();
+        info.oldEvent.oldDayOfWeek = info.oldEvent.start.getDay();
         alert("at this point we can't move events across days - change rule document");
       }
 

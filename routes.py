@@ -148,16 +148,16 @@ def rules_for_student():
     return jsonify(result)
 
 
-@routes_for_flask.route('/rule/provider')
+@routes_for_flask.route('/rules/provider')
 def rules_for_provider():
     provider_id = request.args.get('provider_id')
     result = models.rules_for_provider_to_json(provider_id)
     return jsonify(result)
 
 
-@routes_for_flask.route('/rule/type')
+@routes_for_flask.route('/rules/type')
 def rules_by_type():
-    type = request.args.get('type')
+    type = request.args.get('provider_type')
     result = models.rules_by_type_to_json(type)
     return jsonify(result)
 
