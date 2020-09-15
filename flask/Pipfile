@@ -9,6 +9,7 @@ flask-sqlalchemy = "*"
 pytz = "*"
 pymysql = "*"
 flask-wtf = "*"
+gunicorn = "*"
 
 [dev-packages]
 

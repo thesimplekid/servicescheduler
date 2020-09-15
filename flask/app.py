@@ -22,9 +22,8 @@ def create_app():
     return app
 
 
-if __name__ == "__main__":
-    app = create_app()
-    app.app_context().push()
-    models.db.create_all()
-    models.populate()
-    app.run()
+app = create_app()
+app.app_context().push()
+models.db.create_all()
+# models.populate()
+app.run()
