@@ -128,10 +128,28 @@
         iep_li.appendChild(rule_ul);
 
         $.getJSON("/rules?mandate_id=" + mandate.iep_id, function(data) {
+          var rule_minutes = 0
           data.forEach(function(rule) {
+            var weekly_sessions = (rule.monday ? 1 : 0) + (rule.monday ? 1 : 0) + (rule.tuesday ? 1 : 0) + (rule.wednesday ? 1 : 0) + (rule.thursday ? 1 : 0) + (rule.friday ? 1 : 0);
+            rule_minutes += rule.duration * weekly_sessions / rule.interval;
             displayRule(rule_ul, rule);
           });
+          //at this point, we should know if sum of rules meets mandates
+          //if so, turn mandate container green, otherwise rule_id
+          //or otherwise indicate we are not in compliance
+          var mandate_minutes = mandate.frequency * mandate.duration;
+          var text_node;
+          var minutes_diff = rule_minutes - mandate_minutes;
+          if (minutes_diff >= 0) {
+            iep_li.setAttribute("style", "background-color: rgb(216,231,200);");
+            text_node = document.createTextNode('In compliance (' + minutes_diff + ' minutes)');
+          } else {
+            iep_li.setAttribute("style", "background-color: rgb(245,208,184);");
+            text_node = document.createTextNode('Out of compliance (' + minutes_diff + ' minutes)');
+          }
+          iep_li.appendChild(text_node);
         });
+
       });
     });
   });
