@@ -42,3 +42,13 @@ class add_rule(FlaskForm):
         ('monday', 'Monday'), ('tuesday', 'Tuesday'), ('wednesday', 'Wednesday'), ('thursday', 'Thursday'), ('friday', 'Friday')])
 
     submit = SubmitField('Submit')
+
+
+class add_mandate(FlaskForm):
+    student_id = HiddenField('student_id')
+    frequency = IntegerField('Enter a frequency(int)')
+    duration = IntegerField('Enter duration')
+    group_size = IntegerField('Enter Group Size')
+    type = SelectField('Select a Provider type')
+
+    submit = SubmitField('Submit')

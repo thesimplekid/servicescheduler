@@ -92,6 +92,21 @@ def new_provider():
         return render_template('provider/create.html', form=form)
 
 
+@routes_for_flask.route('/mandate/new', methods=['GET', 'POST'])
+def new_mandate():
+    form = forms.add_mandate()
+    student_id = request.args.get('student_id')
+
+    if request.method == 'POST':
+        models.insert_iepmandate(form.frequency.data, form.duration.data,
+                                 form.group_size.data, form.type.data, student_id)
+        return redirect('/students')
+    else:
+        #form.frequency.choices = models.tup_to_choices(models.frequency)
+        form.type.choices = models.tup_to_choices(models.types)
+        return render_template('mandate/create.html', form=form)
+
+
 @routes_for_flask.route('/iep')
 def iep_student():
     student_id = request.args.get('student_id')
@@ -127,7 +142,6 @@ def add_rule():
 
         start_datetime = datetime(
             start_date.year, start_date.month, start_date.day, int(time[0]), int(time[1]))
-        logging.info(start_datetime)
 
         models.insert_rule(form.location.data, form.interval.data, form.frequency.data, start_datetime, form.end_date.data,
                            form.provider.data, form.iep_id.data, student_id, form.duration.data, monday_b, tuesday_b, wednesday_b, thursday_b, friday_b)

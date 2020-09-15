@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block headcontent %}
+<title>New Provider</title>
+{% endblock %}
+
+{% block content %}
+<form method=post action="" enctype="multipart/form-data">
+  <fieldset>
+    <legend>Add a new provider</legend>
+    {{form.csrf_token}}
+    {{form.student_id}}
+
+    {{form.frequency.label}}<br>
+    {{form.frequency}}
+    <br>
+
+    {{form.duration.label}}<br>
+    {{form.duration}}
+    <br>
+
+    {{form.group_size.label}}<br>
+    {{form.group_size}}
+    <br>
+
+    {{form.type.label}}<br>
+    {{form.type}}
+    <br>
+
+    {{form.submit}}
+
+  </fieldset>
+
+</form>
+{% endblock %}
+
+{% block endcontent %}
+{% endblock %}
