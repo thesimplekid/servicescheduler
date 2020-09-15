@@ -3,7 +3,7 @@ version: "3.8"
 services:
 
   flask:
-    image: thesimplekid/service:flask
+    build: ./flask
     container_name: flask
     restart: always
     expose:
