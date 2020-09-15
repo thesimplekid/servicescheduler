@@ -11,9 +11,13 @@ logging.warning("New Run Starts Here")
 
 
 def create_app():
+    username = 'newuser'
+    password = 'newpassword'
+    location = 'mysql'
+    dbname = 'test_db'
     app = Flask(__name__)
     app.register_blueprint(routes_for_flask)
-    app.config['SQLALCHEMY_DATABASE_URI'] = config.database_url
+    app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{username}:{password}@{location}:3306/{dbname}?charset=utf8mb4"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     # Shows sql querys being made if having database issue set to true
     app.config['SQLALCHEMY_ECHO'] = True
@@ -26,4 +30,4 @@ app = create_app()
 app.app_context().push()
 models.db.create_all()
 # models.populate()
-app.run()
+# app.run()
